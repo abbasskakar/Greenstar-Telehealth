@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Reference material (PRDs, competitor Stitch export) must not be scanned for classes */
+@source not "../docs";
+
 /* Dark mode driven by a `.dark` class on <html> (set by ThemeProvider) */
 @custom-variant dark (&:where(.dark, .dark *));
 

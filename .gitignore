@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# large reference material (kept locally, not part of the app repo)
+docs/stitch_greenstar_telehealth_system/
+docs/*.docx
+docs/*.pdf

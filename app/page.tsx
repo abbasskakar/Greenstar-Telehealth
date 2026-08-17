@@ -1,6 +1,9 @@
 import { redirect } from "next/navigation";
+import { getSessionProfile } from "@/lib/auth/session";
+import { ROLE_HOME } from "@/lib/auth/roles";
 
-export default function Home() {
-  // Foundation: route into the auth flow. Role-based dashboards arrive with the auth module.
+export default async function Home() {
+  const session = await getSessionProfile();
+  if (session?.profile) redirect(ROLE_HOME[session.profile.role]);
   redirect("/login");
 }
