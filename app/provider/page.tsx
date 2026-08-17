@@ -1,11 +1,32 @@
 import Link from "next/link";
-import { Plus, History, Users, Stethoscope } from "lucide-react";
+import { Plus, Users } from "lucide-react";
 import { requireRole } from "@/lib/auth/session";
+import { createClient } from "@/lib/supabase/server";
 import { Card, CardBody } from "@/components/ui/card";
+import {
+  AppointmentCard,
+  type AppointmentCardData,
+} from "@/components/patterns/appointment-card";
+
+type Row = AppointmentCardData & { patient_id: string };
 
 export default async function ProviderHome() {
   const { profile } = await requireRole("provider");
   const firstName = (profile.full_name || "Provider").split(" ")[0];
+
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("appointments")
+    .select(
+      `id, type, status, specialty, chief_complaint, patient_id,
+       patient:patients ( full_name, age, gender ),
+       vitals ( bp_systolic, bp_diastolic, heart_rate, temperature_f, spo2 )`,
+    )
+    .eq("created_by", profile.id)
+    .order("created_at", { ascending: false })
+    .limit(8);
+
+  const appts = (data ?? []) as unknown as Row[];
 
   return (
     <div className="space-y-6">
@@ -18,15 +39,13 @@ export default async function ProviderHome() {
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <Link href="/provider/patients">
+        <Link href="/provider/new">
           <Card className="h-full transition-colors hover:border-primary">
             <CardBody className="flex flex-col gap-3">
               <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary text-primary-contrast">
                 <Plus size={22} />
               </span>
-              <span className="font-semibold text-foreground">
-                New Appointment
-              </span>
+              <span className="font-semibold text-foreground">New Appointment</span>
             </CardBody>
           </Card>
         </Link>
@@ -43,36 +62,32 @@ export default async function ProviderHome() {
       </div>
 
       <div>
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-foreground">
-            Recent Appointments
-          </h2>
-          <Link
-            href="/provider/patients"
-            className="text-sm font-semibold text-primary"
-          >
-            View all
-          </Link>
-        </div>
-        <Card>
-          <CardBody className="flex flex-col items-center gap-3 py-12 text-center">
-            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-surface-2 text-muted-2">
-              <History size={22} />
-            </span>
-            <p className="text-[15px] font-medium text-foreground">
-              No appointments yet
-            </p>
-            <p className="max-w-xs text-sm text-muted">
-              Appointment creation with vitals arrives in the next module. Your
-              account is ready.
-            </p>
-          </CardBody>
-        </Card>
-      </div>
-
-      <div className="flex items-center gap-2 rounded-xl border border-border bg-surface-2/50 px-4 py-3 text-sm text-muted">
-        <Stethoscope size={16} className="text-primary" />
-        Signed in as a field provider.
+        <h2 className="mb-3 text-lg font-bold text-foreground">
+          Recent Appointments
+        </h2>
+        {appts.length ? (
+          <div className="space-y-3">
+            {appts.map((a) => (
+              <AppointmentCard
+                key={a.id}
+                appt={a}
+                href={`/provider/patients/${a.patient_id}`}
+              />
+            ))}
+          </div>
+        ) : (
+          <Card>
+            <CardBody className="flex flex-col items-center gap-3 py-12 text-center">
+              <p className="text-[15px] font-medium text-foreground">
+                No appointments yet
+              </p>
+              <p className="max-w-xs text-sm text-muted">
+                Tap <span className="font-semibold text-foreground">New Appointment</span> to record a
+                patient&apos;s vitals and reach a doctor.
+              </p>
+            </CardBody>
+          </Card>
+        )}
       </div>
     </div>
   );
