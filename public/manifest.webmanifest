@@ -1,0 +1,14 @@
+{
+  "name": "Greenstar Telehealth",
+  "short_name": "Greenstar",
+  "description": "Field-first telehealth — consultations, vitals, and emergency response in real time.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f3f7f4",
+  "theme_color": "#0f7a57",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "/icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icons/icon.svg", "sizes": "512x512", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}

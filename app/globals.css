@@ -1,0 +1,177 @@
+@import "tailwindcss";
+
+/* Dark mode driven by a `.dark` class on <html> (set by ThemeProvider) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* =========================================================================
+   Greenstar Telehealth — Design System ("Green-forward, refined")
+   Raw tokens live on :root / .dark; @theme maps them to Tailwind utilities.
+   ========================================================================= */
+:root {
+  /* Surfaces & ink */
+  --background: #f3f7f4;
+  --surface: #ffffff;
+  --surface-2: #e9f0eb;
+  --surface-3: #dfe8e2;
+  --foreground: #14201b;
+  --muted: #5a6b62;
+  --muted-2: #7c8b83;
+  --border: #d9e3dd;
+  --border-strong: #c5d2ca;
+
+  /* Brand — deep evergreen */
+  --primary: #0f7a57;
+  --primary-strong: #0a5c42;
+  --primary-contrast: #ffffff;
+  --primary-soft: #e2f1ea;
+
+  /* Signature "pulse" accent — live / active states */
+  --pulse: #14b98a;
+  --pulse-soft: #d6f5ea;
+
+  /* Semantic status */
+  --emergency: #d13a3a;
+  --emergency-soft: #fbe9e9;
+  --info: #2e72c7;
+  --info-soft: #e8f1fb;
+  --warning: #b9790d;
+  --warning-soft: #f9f0d8;
+  --success: #1e9e5a;
+  --success-soft: #e2f4ea;
+
+  /* Elevation */
+  --shadow-sm: 0 1px 2px rgba(16, 40, 30, 0.06);
+  --shadow-md: 0 4px 14px rgba(16, 40, 30, 0.08), 0 1px 3px rgba(16, 40, 30, 0.05);
+  --shadow-lg: 0 12px 34px rgba(16, 40, 30, 0.12), 0 4px 10px rgba(16, 40, 30, 0.06);
+
+  /* Radii */
+  --radius: 0.875rem;
+}
+
+.dark {
+  --background: #0b1411;
+  --surface: #111e19;
+  --surface-2: #182820;
+  --surface-3: #21362b;
+  --foreground: #e6efe9;
+  --muted: #a4b4ab;
+  --muted-2: #7a8a81;
+  --border: #223429;
+  --border-strong: #2f4638;
+
+  --primary: #2ec88c;
+  --primary-strong: #55dca6;
+  --primary-contrast: #052018;
+  --primary-soft: #12281f;
+
+  --pulse: #2fe0a6;
+  --pulse-soft: #102b22;
+
+  --emergency: #e8756b;
+  --emergency-soft: #2a1816;
+  --info: #6fa6df;
+  --info-soft: #14232f;
+  --warning: #e0b24e;
+  --warning-soft: #241d0e;
+  --success: #52c483;
+  --success-soft: #12271c;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 14px 40px rgba(0, 0, 0, 0.55);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-2: var(--muted-2);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+
+  --color-primary: var(--primary);
+  --color-primary-strong: var(--primary-strong);
+  --color-primary-contrast: var(--primary-contrast);
+  --color-primary-soft: var(--primary-soft);
+
+  --color-pulse: var(--pulse);
+  --color-pulse-soft: var(--pulse-soft);
+
+  --color-emergency: var(--emergency);
+  --color-emergency-soft: var(--emergency-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+
+  --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-mono), ui-monospace, monospace;
+  --font-urdu: var(--font-urdu), var(--font-body), sans-serif;
+
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 0.375rem);
+  --radius-2xl: calc(var(--radius) + 0.75rem);
+
+  --shadow-card: var(--shadow-sm);
+  --shadow-pop: var(--shadow-md);
+  --shadow-float: var(--shadow-lg);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  /* RTL: Urdu font when dir=rtl */
+  [dir="rtl"] {
+    font-family: var(--font-urdu);
+  }
+  ::selection {
+    background: var(--pulse-soft);
+    color: var(--foreground);
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+}
+
+/* Signature: pulsing ring for live / incoming states */
+@keyframes gs-pulse-ring {
+  0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--pulse) 55%, transparent); }
+  70%  { box-shadow: 0 0 0 16px color-mix(in srgb, var(--pulse) 0%, transparent); }
+  100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--pulse) 0%, transparent); }
+}
+.gs-pulse { animation: gs-pulse-ring 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
+
+@keyframes gs-pulse-ring-emergency {
+  0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--emergency) 55%, transparent); }
+  70%  { box-shadow: 0 0 0 18px color-mix(in srgb, var(--emergency) 0%, transparent); }
+  100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--emergency) 0%, transparent); }
+}
+.gs-pulse-emergency { animation: gs-pulse-ring-emergency 1.3s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .gs-pulse, .gs-pulse-emergency { animation: none; }
+  * { scroll-behavior: auto !important; }
+}
+
+/* Utility: hide scrollbars on horizontal tab rows */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
