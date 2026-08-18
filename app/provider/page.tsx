@@ -71,7 +71,7 @@ export default async function ProviderHome() {
               <AppointmentCard
                 key={a.id}
                 appt={a}
-                href={`/provider/patients/${a.patient_id}`}
+                href={`/provider/appointments/${a.id}`}
               />
             ))}
           </div>

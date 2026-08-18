@@ -101,7 +101,7 @@ export default async function PatientProfile({
         </div>
         <div className="space-y-3">
           {appointments.map((a) => (
-            <AppointmentCard key={a.id} appt={a} href={`/provider/patients/${id}`} />
+            <AppointmentCard key={a.id} appt={a} href={`/provider/appointments/${a.id}`} />
           ))}
         </div>
       </div>
