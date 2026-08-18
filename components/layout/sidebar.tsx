@@ -9,6 +9,7 @@ import {
   Settings,
   Tent,
   BarChart3,
+  Map,
   type LucideIcon,
 } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
@@ -25,11 +26,13 @@ const NAVS: Record<SidebarVariant, NavItem[]> = {
     { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
     { href: "/admin/users", label: "Users", icon: Users },
     { href: "/admin/appointments", label: "Appointments", icon: CalendarDays },
+    { href: "/admin/map", label: "Coverage Map", icon: Map },
     { href: "/admin/settings", label: "Settings", icon: Settings },
   ],
   program: [
     { href: "/program", label: "Dashboard", icon: LayoutDashboard },
     { href: "/program/camps", label: "Camps & Events", icon: Tent },
+    { href: "/program/map", label: "Coverage Map", icon: Map },
     { href: "/program/reports", label: "Reports", icon: BarChart3 },
   ],
 };

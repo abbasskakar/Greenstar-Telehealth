@@ -11,6 +11,7 @@ import {
   Droplet,
   Droplets,
   CheckCircle2,
+  MapPin,
 } from "lucide-react";
 import { Card, CardBody } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -55,6 +56,16 @@ export function NewAppointmentForm({ patients }: { patients: PatientOption[] }) 
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [done, setDone] = React.useState(false);
+  const [geo, setGeo] = React.useState<{ lat: number; lng: number } | null>(null);
+
+  React.useEffect(() => {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      (pos) => setGeo({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      () => setGeo(null),
+      { enableHighAccuracy: true, timeout: 10000 },
+    );
+  }, []);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -74,6 +85,7 @@ export function NewAppointmentForm({ patients }: { patients: PatientOption[] }) 
       type: emergency ? "emergency" : "regular",
       specialty,
       chief_complaint: complaint || undefined,
+      geo,
       vitals: {
         bp_systolic: num(bpSys),
         bp_diastolic: num(bpDia),
@@ -337,6 +349,11 @@ export function NewAppointmentForm({ patients }: { patients: PatientOption[] }) 
           {error}
         </p>
       )}
+
+      <div className="flex items-center gap-1.5 text-xs text-muted-2">
+        <MapPin size={13} className={geo ? "text-success" : ""} />
+        {geo ? "Location captured for coverage mapping" : "Location will be tagged if enabled"}
+      </div>
 
       <Button
         type="submit"

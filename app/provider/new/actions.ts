@@ -29,6 +29,7 @@ const schema = z.object({
   specialty: z.string().trim().min(1, "Select a specialty"),
   chief_complaint: z.string().trim().optional(),
   vitals: vitalsSchema,
+  geo: z.object({ lat: z.number(), lng: z.number() }).nullable().optional(),
 });
 
 export type CreateAppointmentInput = z.infer<typeof schema>;
@@ -75,6 +76,8 @@ export async function createAppointment(
       type: data.type,
       specialty: data.specialty,
       chief_complaint: data.chief_complaint || null,
+      geo_lat: data.geo?.lat ?? null,
+      geo_lng: data.geo?.lng ?? null,
       status: "pending",
     })
     .select("id")
