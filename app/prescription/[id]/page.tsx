@@ -44,7 +44,7 @@ export default async function PrescriptionPrintPage({
           <div className="flex items-center justify-between border-b border-[#dbe4de] pb-4">
             <Logo withWordmark />
             <div className="text-right">
-              <p className="font-display text-lg font-bold text-[#0f7a57]">Prescription · نسخہ</p>
+              <p className="font-display text-lg font-bold text-[#0f7a57]">Prescription</p>
               <p className="text-sm text-[#5a6b62]">{date}</p>
             </div>
           </div>
@@ -64,10 +64,10 @@ export default async function PrescriptionPrintPage({
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-[#dbe4de] text-left text-xs uppercase tracking-wide text-[#5a6b62]">
-                  <th className="py-2">Medicine · دوا</th>
-                  <th className="py-2">Dose · خوراک</th>
-                  <th className="py-2">Frequency · تعدد</th>
-                  <th className="py-2">Duration · مدت</th>
+                  <th className="py-2">Medicine</th>
+                  <th className="py-2">Dose</th>
+                  <th className="py-2">Frequency</th>
+                  <th className="py-2">Duration</th>
                 </tr>
               </thead>
               <tbody>
@@ -90,12 +90,12 @@ export default async function PrescriptionPrintPage({
 
           {rx.advice && (
             <div className="mt-5 text-sm">
-              <p className="font-semibold">Advice · مشورہ</p>
+              <p className="font-semibold">Advice</p>
               <p className="text-[#45544c]">{rx.advice}</p>
             </div>
           )}
           {rx.follow_up_date && (
-            <p className="mt-3 text-sm"><span className="font-semibold">Follow-up · دوبارہ ملاقات: </span>{rx.follow_up_date}</p>
+            <p className="mt-3 text-sm"><span className="font-semibold">Follow-up: </span>{rx.follow_up_date}</p>
           )}
 
           <div className="mt-10 flex items-end justify-between">

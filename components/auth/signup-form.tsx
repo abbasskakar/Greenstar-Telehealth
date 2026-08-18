@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
-import { LanguageToggle } from "@/lib/i18n";
 import { formatCnic, cnicSchema } from "@/lib/validation/cnic";
 import { createClient } from "@/lib/supabase/client";
 import { signUpPublic } from "@/app/(auth)/sign-up/actions";
@@ -62,10 +61,7 @@ export function SignUpForm() {
       <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-gradient-to-b from-primary-soft to-transparent" />
       <header className="relative z-10 flex items-center justify-between px-5 pt-6">
         <Logo withWordmark />
-        <div className="flex items-center gap-1.5">
-          <LanguageToggle />
-          <ThemeToggle />
-        </div>
+        <ThemeToggle />
       </header>
 
       <main className="relative z-10 mx-auto w-full max-w-md flex-1 px-5 py-8">

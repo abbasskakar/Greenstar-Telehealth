@@ -1,10 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import {
-  Inter,
-  Plus_Jakarta_Sans,
-  JetBrains_Mono,
-  Noto_Naskh_Arabic,
-} from "next/font/google";
+import { Inter, Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { PwaRegister } from "@/components/pwa-register";
@@ -19,11 +14,6 @@ const display = Plus_Jakarta_Sans({
 const mono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
-  display: "swap",
-});
-const urdu = Noto_Naskh_Arabic({
-  subsets: ["arabic"],
-  variable: "--font-urdu",
   display: "swap",
 });
 
@@ -49,7 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
-      className={`${body.variable} ${display.variable} ${mono.variable} ${urdu.variable} h-full`}
+      className={`${body.variable} ${display.variable} ${mono.variable} h-full`}
       suppressHydrationWarning
     >
       <head>
