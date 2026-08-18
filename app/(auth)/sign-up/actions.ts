@@ -1,9 +1,9 @@
 "use server";
 
-import { createHash } from "node:crypto";
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { cnicSchema } from "@/lib/validation/cnic";
+import { encryptCnic, hashCnic } from "@/lib/crypto";
 
 const schema = z.object({
   cnic: cnicSchema,
@@ -42,14 +42,15 @@ export async function signUpPublic(input: SignUpInput): Promise<Result> {
   }
 
   const userId = created.user.id;
-  const cnicHash = createHash("sha256").update(d.cnic).digest("hex");
 
   const { error: pErr } = await admin.from("patients").insert({
     full_name: d.full_name,
     age: d.age ?? null,
     gender: d.gender || null,
     contact: d.contact || null,
-    cnic_hash: cnicHash,
+    cnic_hash: hashCnic(d.cnic),
+    cnic_enc: encryptCnic(d.cnic),
+    cnic_last4: d.cnic.slice(-4),
     owner_id: userId,
     created_by: userId,
   });

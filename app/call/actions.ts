@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 type StartResult =
   | { ok: true; sessionId: string; roomName: string }
@@ -43,6 +44,21 @@ export async function startCall(appointmentId: string): Promise<StartResult> {
     .select("id")
     .single();
   if (error) return { ok: false, error: error.message };
+
+  // Notify the provider of the incoming call (green). The realtime overlay
+  // handles the live ringing; this leaves a record in their Calls tab.
+  if (appt.created_by) {
+    await createAdminClient()
+      .from("notifications")
+      .insert({
+        user_id: appt.created_by,
+        type: "call",
+        title: `Incoming video call from ${profile.full_name}`,
+        body: "A doctor is calling for this appointment.",
+        appointment_id: appointmentId,
+        patient_name: patientName,
+      });
+  }
 
   revalidatePath(`/doctor/appointments/${appointmentId}`);
   return { ok: true, sessionId: session.id, roomName };

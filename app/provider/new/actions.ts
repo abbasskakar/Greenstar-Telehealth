@@ -23,6 +23,7 @@ const schema = z.object({
       age: z.number().int().min(0).max(130).nullable().optional(),
       gender: z.string().optional(),
       contact: z.string().trim().optional(),
+      allergies: z.string().trim().optional(),
     })
     .optional(),
   type: z.enum(["emergency", "regular"]),
@@ -60,6 +61,7 @@ export async function createAppointment(
         age: data.patient.age ?? null,
         gender: data.patient.gender || null,
         contact: data.patient.contact || null,
+        allergies: data.patient.allergies || null,
         created_by: profile.id,
       })
       .select("id")

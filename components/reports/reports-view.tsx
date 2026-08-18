@@ -25,7 +25,10 @@ export async function ReportsView() {
     { data: camps },
   ] = await Promise.all([
     supabase.from("patients").select("*", { count: "exact", head: true }),
-    supabase.from("appointments").select("type, status, specialty, created_at").limit(2000),
+    supabase
+      .from("appointments")
+      .select("type, status, specialty, created_at, claimed_at, call_started_at")
+      .limit(2000),
     supabase.from("profiles").select("*", { count: "exact", head: true }).eq("role", "provider"),
     supabase.from("profiles").select("*", { count: "exact", head: true }).eq("role", "doctor"),
     supabase.from("camps").select("actual_turnout, counters"),
@@ -36,12 +39,27 @@ export async function ReportsView() {
     status: string;
     specialty: string | null;
     created_at: string;
+    claimed_at: string | null;
+    call_started_at: string | null;
   }[];
 
   const total = rows.length;
   const emergencies = rows.filter((r) => r.type === "emergency").length;
   const completed = rows.filter((r) => r.status === "completed").length;
   const completionRate = total ? Math.round((completed / total) * 100) : 0;
+
+  // Emergency response-time metrics (seconds)
+  const avgSecs = (getEnd: (r: (typeof rows)[number]) => string | null) => {
+    const vals = rows
+      .filter((r) => getEnd(r))
+      .map((r) => (new Date(getEnd(r)!).getTime() - new Date(r.created_at).getTime()) / 1000)
+      .filter((s) => s >= 0);
+    return vals.length ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length) : null;
+  };
+  const respSecs = avgSecs((r) => r.claimed_at);
+  const callSecs = avgSecs((r) => r.call_started_at);
+  const fmt = (s: number | null) =>
+    s == null ? "—" : s < 60 ? `${s}s` : `${Math.floor(s / 60)}m ${s % 60}s`;
   const campReach = (camps ?? []).reduce(
     (s, c) => s + (c.actual_turnout ?? 0),
     0,
@@ -84,6 +102,8 @@ export async function ReportsView() {
     active_providers: providers ?? 0,
     active_doctors: doctors ?? 0,
     camp_people_reached: campReach,
+    avg_response_seconds: respSecs ?? 0,
+    avg_time_to_call_seconds: callSecs ?? 0,
   };
 
   const exportRows: ReportRow[] = rows.map((r) => ({
@@ -156,9 +176,24 @@ export async function ReportsView() {
         </Card>
       </div>
 
+      <Card>
+        <CardBody>
+          <h3 className="mb-4 font-bold text-foreground">Emergency response times</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="rounded-xl border border-border bg-surface-2/50 p-4">
+              <p className="font-mono text-2xl font-bold tabular-nums text-primary">{fmt(respSecs)}</p>
+              <p className="mt-1 text-sm text-muted">Avg. creation → doctor accepts</p>
+            </div>
+            <div className="rounded-xl border border-border bg-surface-2/50 p-4">
+              <p className="font-mono text-2xl font-bold tabular-nums text-primary">{fmt(callSecs)}</p>
+              <p className="mt-1 text-sm text-muted">Avg. creation → call started</p>
+            </div>
+          </div>
+        </CardBody>
+      </Card>
+
       <p className="text-xs text-muted-2">
-        Donor-ready indicators export as CSV or a DHIS2 / FHIR-lite JSON payload. Response-time
-        metrics expand as more appointments flow through the system.
+        Donor-ready indicators export as CSV or a DHIS2 / FHIR-lite JSON payload.
       </p>
     </div>
   );

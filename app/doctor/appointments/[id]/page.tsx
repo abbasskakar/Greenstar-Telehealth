@@ -35,7 +35,7 @@ export default async function DoctorAppointmentDetail({
     .from("appointments")
     .select(
       `id, type, status, specialty, chief_complaint, patient_id,
-       patient:patients ( full_name, age, gender, contact ),
+       patient:patients ( full_name, age, gender, contact, allergies ),
        vitals ( * )`,
     )
     .eq("id", id)
@@ -75,6 +75,7 @@ export default async function DoctorAppointmentDetail({
     age: number | null;
     gender: string | null;
     contact: string | null;
+    allergies: string | null;
   } | null;
   const vitals = (appt.vitals as unknown as Vitals[])?.[0];
   const meta = statusMeta[appt.status as keyof typeof statusMeta];
@@ -159,7 +160,7 @@ export default async function DoctorAppointmentDetail({
         {(rxList ?? []).map((rx) => (
           <PrescriptionView key={rx.id} rx={rx as Prescription} />
         ))}
-        <PrescriptionForm appointmentId={appt.id} />
+        <PrescriptionForm appointmentId={appt.id} allergies={p?.allergies} />
       </div>
 
       <div className="space-y-3">

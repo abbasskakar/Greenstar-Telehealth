@@ -36,6 +36,7 @@ const meta = {
 
 const FILTERS = [
   { key: "all", label: "All" },
+  { key: "calls", label: "Calls" },
   { key: "appointments", label: "Appointments" },
   { key: "unread", label: "Unread" },
 ] as const;
@@ -102,6 +103,7 @@ export function NotificationList({
 
   const shown = items.filter((n) => {
     if (filter === "unread") return !n.read_at;
+    if (filter === "calls") return n.type === "call";
     if (filter === "appointments") return n.type === "emergency" || n.type === "regular";
     return true;
   });

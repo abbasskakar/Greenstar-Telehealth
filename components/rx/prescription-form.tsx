@@ -2,13 +2,24 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Pill, Plus, Trash2, X } from "lucide-react";
+import { Pill, Plus, Trash2, X, AlertTriangle } from "lucide-react";
 import { Card, CardBody } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
 import { createPrescription, type RxItem } from "@/app/rx/actions";
 
-export function PrescriptionForm({ appointmentId }: { appointmentId: string }) {
+const COMMON_DRUGS = [
+  "Paracetamol", "Amoxicillin", "Ibuprofen", "Metformin", "Amlodipine",
+  "Omeprazole", "Azithromycin", "Cetirizine", "ORS", "Aspirin",
+];
+
+export function PrescriptionForm({
+  appointmentId,
+  allergies,
+}: {
+  appointmentId: string;
+  allergies?: string | null;
+}) {
   const router = useRouter();
   const [open, setOpen] = React.useState(false);
   const [items, setItems] = React.useState<RxItem[]>([{ drug: "" }]);
@@ -19,6 +30,14 @@ export function PrescriptionForm({ appointmentId }: { appointmentId: string }) {
 
   function update(i: number, field: keyof RxItem, val: string) {
     setItems((prev) => prev.map((it, idx) => (idx === i ? { ...it, [field]: val } : it)));
+  }
+
+  function addDrug(name: string) {
+    setItems((prev) => {
+      const empty = prev.findIndex((it) => !it.drug.trim());
+      if (empty >= 0) return prev.map((it, i) => (i === empty ? { ...it, drug: name } : it));
+      return [...prev, { drug: name }];
+    });
   }
 
   async function submit() {
@@ -54,6 +73,26 @@ export function PrescriptionForm({ appointmentId }: { appointmentId: string }) {
           <button onClick={() => setOpen(false)} className="text-muted-2 hover:text-foreground">
             <X size={18} />
           </button>
+        </div>
+
+        {allergies && allergies.trim() && (
+          <div className="flex items-start gap-2 rounded-xl border border-emergency/30 bg-emergency-soft px-3.5 py-2.5 text-sm text-emergency">
+            <AlertTriangle size={16} className="mt-0.5 shrink-0" />
+            <span><span className="font-semibold">Allergies:</span> {allergies} — check before prescribing.</span>
+          </div>
+        )}
+
+        <div className="flex flex-wrap gap-1.5">
+          {COMMON_DRUGS.map((d) => (
+            <button
+              key={d}
+              type="button"
+              onClick={() => addDrug(d)}
+              className="rounded-full border border-border px-2.5 py-1 text-xs font-medium text-muted hover:border-primary hover:text-primary"
+            >
+              + {d}
+            </button>
+          ))}
         </div>
 
         <div className="space-y-3">

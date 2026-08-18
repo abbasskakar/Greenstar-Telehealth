@@ -2,10 +2,10 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Power, PowerOff } from "lucide-react";
+import { Power, PowerOff, KeyRound } from "lucide-react";
 import { StatusPill } from "@/components/ui/status-pill";
 import { ROLE_LABEL, type Role } from "@/lib/auth/roles";
-import { setUserActive } from "@/app/admin/users/actions";
+import { setUserActive, resetUserPassword } from "@/app/admin/users/actions";
 import { cn } from "@/lib/utils";
 
 export type UserRow = {
@@ -33,6 +33,13 @@ export function UsersTable({ users, currentUserId }: { users: UserRow[]; current
     await setUserActive(u.id, !u.is_active);
     setBusy(null);
     router.refresh();
+  }
+
+  async function reset(u: UserRow) {
+    const pw = window.prompt(`New password for ${u.full_name} (min 8 characters):`);
+    if (!pw) return;
+    const res = await resetUserPassword(u.id, pw);
+    window.alert(res.ok ? "Password reset. Share it with the user." : res.error ?? "Failed.");
   }
 
   return (
@@ -69,21 +76,29 @@ export function UsersTable({ users, currentUserId }: { users: UserRow[]; current
                   {u.is_active ? "Active" : "Disabled"}
                 </StatusPill>
               </td>
-              <td className="px-5 py-3.5 text-right">
+              <td className="px-5 py-3.5">
                 {u.role !== "admin" && (
-                  <button
-                    onClick={() => toggle(u)}
-                    disabled={busy === u.id}
-                    className={cn(
-                      "inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs font-semibold transition-colors disabled:opacity-50",
-                      u.is_active
-                        ? "text-muted hover:text-emergency"
-                        : "text-muted hover:text-success",
-                    )}
-                  >
-                    {u.is_active ? <PowerOff size={14} /> : <Power size={14} />}
-                    {u.is_active ? "Disable" : "Enable"}
-                  </button>
+                  <div className="flex items-center justify-end gap-2">
+                    <button
+                      onClick={() => reset(u)}
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs font-semibold text-muted transition-colors hover:text-primary"
+                    >
+                      <KeyRound size={14} /> Reset PW
+                    </button>
+                    <button
+                      onClick={() => toggle(u)}
+                      disabled={busy === u.id}
+                      className={cn(
+                        "inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs font-semibold transition-colors disabled:opacity-50",
+                        u.is_active
+                          ? "text-muted hover:text-emergency"
+                          : "text-muted hover:text-success",
+                      )}
+                    >
+                      {u.is_active ? <PowerOff size={14} /> : <Power size={14} />}
+                      {u.is_active ? "Disable" : "Enable"}
+                    </button>
+                  </div>
                 )}
               </td>
             </tr>

@@ -56,6 +56,7 @@ export function NewAppointmentForm({
   const [age, setAge] = React.useState("");
   const [gender, setGender] = React.useState("");
   const [contact, setContact] = React.useState("");
+  const [allergies, setAllergies] = React.useState("");
   const [specialty, setSpecialty] = React.useState<string>("General Medicine");
   const [complaint, setComplaint] = React.useState("");
   const [bpSys, setBpSys] = React.useState("");
@@ -88,6 +89,7 @@ export function NewAppointmentForm({
               age: num(age),
               gender: gender || undefined,
               contact: contact || undefined,
+              allergies: allergies || undefined,
             }
           : undefined,
       type: emergency ? "emergency" : "regular",
@@ -265,6 +267,15 @@ export function NewAppointmentForm({
                   placeholder="03xx-xxxxxxx"
                   value={contact}
                   onChange={(e) => setContact(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label htmlFor="allergies">Known allergies (optional)</Label>
+                <Input
+                  id="allergies"
+                  placeholder="e.g. Penicillin, sulfa"
+                  value={allergies}
+                  onChange={(e) => setAllergies(e.target.value)}
                 />
               </div>
             </div>
