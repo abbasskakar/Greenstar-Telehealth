@@ -9,6 +9,7 @@ import {
 } from "@/components/patterns/appointment-card";
 import { RealtimeRefresh } from "@/components/notifications/realtime-refresh";
 import { DutyToggle } from "@/components/duty/duty-toggle";
+import { DutyHeartbeat } from "@/components/duty/duty-heartbeat";
 import { SpecialtyFilter } from "@/components/doctor/specialty-filter";
 import { cn } from "@/lib/utils";
 
@@ -53,6 +54,7 @@ export default async function DoctorHome({
   return (
     <div className="space-y-5">
       <RealtimeRefresh table="appointments" channel="doctor-queue" />
+      <DutyHeartbeat />
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Appointments</h1>

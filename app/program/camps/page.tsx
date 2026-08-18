@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import { StatusPill } from "@/components/ui/status-pill";
+import { CampCalendar } from "@/components/camps/camp-calendar";
 import { campMeta, CAMP_TONE } from "@/lib/constants/camps";
 
 export default async function ProgramCamps() {
@@ -49,6 +50,8 @@ export default async function ProgramCamps() {
           ))}
         </div>
       )}
+
+      {camps.length > 0 && <CampCalendar camps={camps} />}
 
       {camps.length ? (
         <div className="grid gap-3 sm:grid-cols-2">

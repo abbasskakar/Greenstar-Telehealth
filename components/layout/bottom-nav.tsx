@@ -11,35 +11,37 @@ import {
   CalendarHeart,
   type LucideIcon,
 } from "lucide-react";
+import { useT, type TKey } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
-type NavItem = { href: string; label: string; icon: LucideIcon };
+type NavItem = { href: string; tkey: TKey; icon: LucideIcon };
 
 export type MobileVariant = "provider" | "doctor" | "patient";
 
 const NAVS: Record<MobileVariant, NavItem[]> = {
   provider: [
-    { href: "/provider", label: "Home", icon: Home },
-    { href: "/provider/patients", label: "Patients", icon: Users },
-    { href: "/notifications", label: "Alerts", icon: Bell },
-    { href: "/provider/profile", label: "Profile", icon: UserRound },
+    { href: "/provider", tkey: "nav_home", icon: Home },
+    { href: "/provider/patients", tkey: "nav_patients", icon: Users },
+    { href: "/notifications", tkey: "nav_alerts", icon: Bell },
+    { href: "/provider/profile", tkey: "nav_profile", icon: UserRound },
   ],
   doctor: [
-    { href: "/doctor", label: "Cases", icon: Home },
-    { href: "/doctor/schedule", label: "Schedule", icon: CalendarClock },
-    { href: "/notifications", label: "Alerts", icon: Bell },
-    { href: "/doctor/profile", label: "Profile", icon: UserRound },
+    { href: "/doctor", tkey: "nav_cases", icon: Home },
+    { href: "/doctor/schedule", tkey: "nav_schedule", icon: CalendarClock },
+    { href: "/notifications", tkey: "nav_alerts", icon: Bell },
+    { href: "/doctor/profile", tkey: "nav_profile", icon: UserRound },
   ],
   patient: [
-    { href: "/patient", label: "Home", icon: Home },
-    { href: "/patient/appointments", label: "Appointments", icon: CalendarHeart },
-    { href: "/notifications", label: "Alerts", icon: Bell },
-    { href: "/patient/profile", label: "Profile", icon: UserRound },
+    { href: "/patient", tkey: "nav_home", icon: Home },
+    { href: "/patient/appointments", tkey: "nav_appointments", icon: CalendarHeart },
+    { href: "/notifications", tkey: "nav_alerts", icon: Bell },
+    { href: "/patient/profile", tkey: "nav_profile", icon: UserRound },
   ],
 };
 
 export function BottomNav({ variant }: { variant: MobileVariant }) {
   const pathname = usePathname();
+  const { t } = useT();
   const items = NAVS[variant];
   return (
     <nav className="sticky bottom-0 z-30 border-t border-border bg-surface/95 backdrop-blur supports-[backdrop-filter]:bg-surface/80 pb-[env(safe-area-inset-bottom)]">
@@ -65,7 +67,7 @@ export function BottomNav({ variant }: { variant: MobileVariant }) {
                 >
                   <Icon size={20} strokeWidth={active ? 2.4 : 1.8} />
                 </span>
-                {item.label}
+                {t(item.tkey)}
               </Link>
             </li>
           );

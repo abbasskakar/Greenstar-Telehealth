@@ -15,7 +15,7 @@ export default async function AdminLayout({
         name={profile.full_name || "Administrator"}
         roleLabel={ROLE_LABEL.admin}
       />
-      <main className="flex-1 overflow-x-hidden">
+      <main id="main-content" className="flex-1 overflow-x-hidden">
         <div className="mx-auto max-w-6xl px-5 py-6 sm:px-8">{children}</div>
       </main>
     </div>

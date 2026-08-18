@@ -3,6 +3,7 @@ import { Plus, Users } from "lucide-react";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardBody } from "@/components/ui/card";
+import { DutyHeartbeat } from "@/components/duty/duty-heartbeat";
 import {
   AppointmentCard,
   type AppointmentCardData,
@@ -30,6 +31,7 @@ export default async function ProviderHome() {
 
   return (
     <div className="space-y-6">
+      <DutyHeartbeat />
       <div>
         <p className="text-sm font-medium text-muted">Welcome back</p>
         <h1 className="text-2xl font-bold text-foreground">{firstName}</h1>

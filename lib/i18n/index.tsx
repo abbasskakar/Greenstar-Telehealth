@@ -27,11 +27,18 @@ const dict = {
   enter_email: { en: "Enter your email", ur: "اپنا ای میل درج کریں" },
   enter_password: { en: "Enter your password", ur: "اپنا پاس ورڈ درج کریں" },
   bad_login: { en: "Incorrect credentials. Please check and try again.", ur: "غلط تفصیلات۔ براہ کرم دوبارہ کوشش کریں۔" },
+  nav_home: { en: "Home", ur: "ہوم" },
+  nav_cases: { en: "Cases", ur: "کیسز" },
+  nav_patients: { en: "Patients", ur: "مریض" },
+  nav_schedule: { en: "Schedule", ur: "شیڈول" },
+  nav_appointments: { en: "Appointments", ur: "اپائنٹمنٹس" },
+  nav_alerts: { en: "Alerts", ur: "الرٹس" },
+  nav_profile: { en: "Profile", ur: "پروفائل" },
 } as const;
 
-type Key = keyof typeof dict;
+export type TKey = keyof typeof dict;
 
-const Ctx = React.createContext<{ lang: Lang; setLang: (l: Lang) => void; t: (k: Key) => string }>({
+const Ctx = React.createContext<{ lang: Lang; setLang: (l: Lang) => void; t: (k: TKey) => string }>({
   lang: "en",
   setLang: () => {},
   t: (k) => dict[k].en,
@@ -55,7 +62,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem("gs-lang", l);
   }, []);
 
-  const t = React.useCallback((k: Key) => dict[k][lang], [lang]);
+  const t = React.useCallback((k: TKey) => dict[k][lang], [lang]);
 
   return <Ctx.Provider value={{ lang, setLang, t }}>{children}</Ctx.Provider>;
 }
