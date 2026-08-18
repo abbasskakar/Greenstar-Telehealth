@@ -21,6 +21,7 @@ import { Input, Label } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { formatCnic, cnicSchema } from "@/lib/validation/cnic";
 import { createClient } from "@/lib/supabase/client";
+import { useT, LanguageToggle } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 type RoleKey = "provider" | "doctor" | "admin" | "program_manager" | "public";
@@ -34,6 +35,7 @@ const ROLES: { key: RoleKey; label: string; icon: React.ReactNode }[] = [
 ];
 
 export function LoginForm() {
+  const { t } = useT();
   const [role, setRole] = React.useState<RoleKey>("provider");
   const [showPw, setShowPw] = React.useState(false);
   const [username, setUsername] = React.useState("");
@@ -58,13 +60,13 @@ export function LoginForm() {
       email = `cnic+${parsed.data}@greenstar.local`;
     } else {
       if (!username.trim()) {
-        setError("Enter your email");
+        setError(t("enter_email"));
         return;
       }
       email = username.trim();
     }
     if (!password) {
-      setError("Enter your password");
+      setError(t("enter_password"));
       return;
     }
 
@@ -76,7 +78,7 @@ export function LoginForm() {
         password,
       });
       if (error) {
-        setError("Incorrect credentials. Please check and try again.");
+        setError(t("bad_login"));
       } else {
         window.location.href = "/";
       }
@@ -96,15 +98,16 @@ export function LoginForm() {
 
       <header className="relative z-10 flex items-center justify-between px-5 pt-6">
         <Logo withWordmark />
-        <ThemeToggle />
+        <div className="flex items-center gap-1.5">
+          <LanguageToggle />
+          <ThemeToggle />
+        </div>
       </header>
 
       <main className="relative z-10 mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-5 py-8">
         <div className="mb-7 text-center">
-          <h1 className="text-[28px] font-bold text-foreground">Welcome back</h1>
-          <p className="mt-1.5 text-[15px] text-muted">
-            Select your role to continue
-          </p>
+          <h1 className="text-[28px] font-bold text-foreground">{t("welcome_back")}</h1>
+          <p className="mt-1.5 text-[15px] text-muted">{t("select_role")}</p>
         </div>
 
         <div className="no-scrollbar -mx-1 mb-6 flex gap-2 overflow-x-auto px-1 pb-1">
@@ -126,7 +129,7 @@ export function LoginForm() {
                 )}
               >
                 {r.icon}
-                {r.label}
+                {t(r.key === "program_manager" ? "program" : r.key)}
               </button>
             );
           })}
@@ -144,7 +147,7 @@ export function LoginForm() {
             >
               {isPublic ? (
                 <div>
-                  <Label htmlFor="cnic">CNIC Number</Label>
+                  <Label htmlFor="cnic">{t("cnic")}</Label>
                   <Input
                     id="cnic"
                     inputMode="numeric"
@@ -154,13 +157,11 @@ export function LoginForm() {
                     onChange={(e) => setCnic(formatCnic(e.target.value))}
                     icon={<IdCard size={18} />}
                   />
-                  <p className="mt-1.5 text-xs text-muted-2">
-                    Enter your 13-digit CNIC
-                  </p>
+                  <p className="mt-1.5 text-xs text-muted-2">{t("cnic_hint")}</p>
                 </div>
               ) : (
                 <div>
-                  <Label htmlFor="username">Email</Label>
+                  <Label htmlFor="username">{t("email")}</Label>
                   <Input
                     id="username"
                     type="email"
@@ -176,13 +177,13 @@ export function LoginForm() {
               <div>
                 <div className="mb-1.5 flex items-center justify-between">
                   <Label htmlFor="password" className="mb-0">
-                    Password
+                    {t("password")}
                   </Label>
                   <Link
                     href="/forgot-password"
                     className="text-sm font-semibold text-primary hover:underline"
                   >
-                    Forgot?
+                    {t("forgot")}
                   </Link>
                 </div>
                 <Input
@@ -215,23 +216,21 @@ export function LoginForm() {
           )}
 
           <Button type="submit" size="lg" className="mt-6 w-full" disabled={loading}>
-            {loading ? "Signing in…" : "Sign In"}
+            {loading ? t("signing_in") : t("sign_in")}
             {!loading && <ArrowRight size={18} />}
           </Button>
         </form>
 
         {isPublic && (
           <p className="mt-6 text-center text-[15px] text-muted">
-            New patient?{" "}
+            {t("new_patient")}{" "}
             <Link href="/sign-up" className="font-semibold text-primary hover:underline">
-              Sign up here
+              {t("sign_up_here")}
             </Link>
           </p>
         )}
 
-        <p className="mt-8 text-center text-xs text-muted-2">
-          Staff accounts are created by your administrator.
-        </p>
+        <p className="mt-8 text-center text-xs text-muted-2">{t("staff_note")}</p>
       </main>
     </div>
   );
