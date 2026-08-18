@@ -8,6 +8,7 @@ import {
   AppointmentCard,
   type AppointmentCardData,
 } from "@/components/patterns/appointment-card";
+import { RealtimeRefresh } from "@/components/notifications/realtime-refresh";
 import { cn } from "@/lib/utils";
 
 const FILTERS = [
@@ -48,6 +49,7 @@ export default async function DoctorHome({
 
   return (
     <div className="space-y-5">
+      <RealtimeRefresh table="appointments" channel="doctor-queue" />
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Appointments</h1>

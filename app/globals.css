@@ -41,6 +41,8 @@
   --warning-soft: #f9f0d8;
   --success: #1e9e5a;
   --success-soft: #e2f4ea;
+  --purple: #6b4fa8;
+  --purple-soft: #efeaf8;
 
   /* Elevation */
   --shadow-sm: 0 1px 2px rgba(16, 40, 30, 0.06);
@@ -78,6 +80,8 @@
   --warning-soft: #241d0e;
   --success: #52c483;
   --success-soft: #12271c;
+  --purple: #a78be0;
+  --purple-soft: #1e1830;
 
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.45);
@@ -111,6 +115,8 @@
   --color-warning-soft: var(--warning-soft);
   --color-success: var(--success);
   --color-success-soft: var(--success-soft);
+  --color-purple: var(--purple);
+  --color-purple-soft: var(--purple-soft);
 
   --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-display), ui-sans-serif, system-ui, sans-serif;
