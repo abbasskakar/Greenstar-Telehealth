@@ -10,6 +10,7 @@ import {
   Tent,
   BarChart3,
   Map,
+  ScrollText,
   type LucideIcon,
 } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
@@ -27,6 +28,7 @@ const NAVS: Record<SidebarVariant, NavItem[]> = {
     { href: "/admin/users", label: "Users", icon: Users },
     { href: "/admin/appointments", label: "Appointments", icon: CalendarDays },
     { href: "/admin/map", label: "Coverage Map", icon: Map },
+    { href: "/admin/audit", label: "Audit Log", icon: ScrollText },
     { href: "/admin/settings", label: "Settings", icon: Settings },
   ],
   program: [

@@ -24,8 +24,12 @@ if (!URL || !KEY) {
   process.exit(1);
 }
 
-/** Run SQL through the exec_sql RPC. Returns rows (for SELECT) or []. */
-async function sql(query) {
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+/** Run SQL through the exec_sql RPC. Returns rows (for SELECT) or [].
+ *  DDL makes PostgREST reload its schema cache, which can briefly 404 the
+ *  RPC — so retry 404s a few times before giving up. */
+async function sql(query, attempt = 0) {
   const res = await fetch(`${URL}/rest/v1/rpc/exec_sql`, {
     method: "POST",
     headers: {
@@ -37,9 +41,13 @@ async function sql(query) {
   });
   const text = await res.text();
   if (!res.ok) {
+    if (res.status === 404 && attempt < 8) {
+      await sleep(1500);
+      return sql(query, attempt + 1);
+    }
     if (res.status === 404) {
       throw new Error(
-        "exec_sql RPC not found. Paste supabase/bootstrap_exec_sql.sql into the Supabase SQL Editor once, then retry.",
+        "exec_sql RPC not found after retries. Paste supabase/bootstrap_exec_sql.sql into the Supabase SQL Editor once, then retry.",
       );
     }
     throw new Error(`${res.status} ${text}`);
@@ -54,6 +62,56 @@ async function sql(query) {
 async function ping() {
   const r = await sql("select now() as now, current_database() as db");
   console.log("✓ Connected:", r?.[0] ?? r);
+}
+
+/** Split a SQL script into top-level statements, respecting single-quote
+ *  strings, dollar-quoted blocks ($tag$…$tag$), and comments. Applying
+ *  statements one at a time avoids PostgREST reload-storm 404s on big DDL. */
+function splitSql(text) {
+  const stmts = [];
+  let cur = "";
+  let i = 0;
+  const n = text.length;
+  let inS = false;
+  let dollar = null;
+  while (i < n) {
+    const c = text[i];
+    if (dollar) {
+      if (text.startsWith(dollar, i)) { cur += dollar; i += dollar.length; dollar = null; }
+      else { cur += c; i++; }
+      continue;
+    }
+    if (inS) {
+      cur += c; i++;
+      if (c === "'") { if (text[i] === "'") { cur += "'"; i++; } else inS = false; }
+      continue;
+    }
+    if (c === "-" && text[i + 1] === "-") {
+      while (i < n && text[i] !== "\n") { cur += text[i]; i++; }
+      continue;
+    }
+    if (c === "/" && text[i + 1] === "*") {
+      cur += "/*"; i += 2;
+      while (i < n && !(text[i] === "*" && text[i + 1] === "/")) { cur += text[i]; i++; }
+      cur += "*/"; i += 2;
+      continue;
+    }
+    if (c === "'") { inS = true; cur += c; i++; continue; }
+    if (c === "$") {
+      const m = /^\$[a-zA-Z_0-9]*\$/.exec(text.slice(i));
+      if (m) { dollar = m[0]; cur += dollar; i += dollar.length; continue; }
+    }
+    if (c === ";") { const s = cur.trim(); if (s) stmts.push(s); cur = ""; i++; continue; }
+    cur += c; i++;
+  }
+  const last = cur.trim();
+  if (last) stmts.push(last);
+  return stmts;
+}
+
+async function applyScript(body) {
+  const statements = splitSql(body);
+  for (const stmt of statements) await sql(stmt);
 }
 
 async function migrate() {
@@ -74,8 +132,7 @@ async function migrate() {
       continue;
     }
     process.stdout.write(`→ apply  ${file} ... `);
-    const body = readFileSync(join(MIGRATIONS_DIR, file), "utf8");
-    await sql(body);
+    await applyScript(readFileSync(join(MIGRATIONS_DIR, file), "utf8"));
     await sql(
       `insert into schema_migrations(name) values ('${file}') on conflict do nothing;`,
     );
@@ -86,7 +143,7 @@ async function migrate() {
 }
 
 async function runFile(path) {
-  await sql(readFileSync(join(ROOT, path), "utf8"));
+  await applyScript(readFileSync(join(ROOT, path), "utf8"));
   console.log(`✓ Ran ${path}`);
 }
 

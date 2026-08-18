@@ -1,8 +1,10 @@
-import { Users, UserCog, Stethoscope, HeartPulse } from "lucide-react";
+import { Users, UserCog, Stethoscope, HeartPulse, Circle } from "lucide-react";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardBody } from "@/components/ui/card";
-import { ComingSoon } from "@/components/patterns/coming-soon";
+import { StatusPill } from "@/components/ui/status-pill";
+import { RealtimeRefresh } from "@/components/notifications/realtime-refresh";
+import { ROLE_LABEL, type Role } from "@/lib/auth/roles";
 
 async function count(table: string, filter?: [string, string]) {
   const supabase = await createClient();
@@ -14,12 +16,20 @@ async function count(table: string, filter?: [string, string]) {
 
 export default async function AdminHome() {
   await requireRole("admin");
+  const supabase = await createClient();
   const [users, patients, providers, doctors] = await Promise.all([
     count("profiles"),
     count("patients"),
     count("profiles", ["role", "provider"]),
     count("profiles", ["role", "doctor"]),
   ]);
+
+  const { data: roster } = await supabase
+    .from("profiles")
+    .select("id, full_name, role, specialty")
+    .eq("duty", "on_duty")
+    .in("role", ["doctor", "provider"])
+    .order("full_name");
 
   const stats = [
     { label: "Total Users", value: users, icon: Users, tone: "primary" },
@@ -35,8 +45,11 @@ export default async function AdminHome() {
     warning: "bg-warning-soft text-warning",
   };
 
+  const onDuty = roster ?? [];
+
   return (
     <div className="space-y-7">
+      <RealtimeRefresh table="profiles" channel="admin-roster" />
       <div>
         <h1 className="text-2xl font-bold text-foreground">Dashboard Overview</h1>
         <p className="mt-1 text-[15px] text-muted">
@@ -65,10 +78,34 @@ export default async function AdminHome() {
         })}
       </div>
 
-      <ComingSoon
-        title="Appointment monitoring & live roster"
-        note="System-wide appointment tracking, online-doctor roster, and audit views arrive as their modules are built."
-      />
+      <Card>
+        <CardBody>
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="flex items-center gap-2 font-bold text-foreground">
+              <Circle size={10} className="fill-success text-success" /> On-duty roster
+            </h2>
+            <span className="text-sm text-muted">{onDuty.length} online</span>
+          </div>
+          {onDuty.length ? (
+            <ul className="divide-y divide-border">
+              {onDuty.map((u) => (
+                <li key={u.id} className="flex items-center justify-between py-2.5">
+                  <div>
+                    <p className="font-medium text-foreground">{u.full_name}</p>
+                    <p className="text-xs text-muted-2">
+                      {ROLE_LABEL[u.role as Role]}
+                      {u.specialty ? ` · ${u.specialty}` : ""}
+                    </p>
+                  </div>
+                  <StatusPill tone="success">On Duty</StatusPill>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="py-6 text-center text-sm text-muted">No staff on duty right now.</p>
+          )}
+        </CardBody>
+      </Card>
     </div>
   );
 }

@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Card, CardBody } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { VitalCards } from "@/components/patterns/vital-cards";
+import { VitalTrends } from "@/components/patterns/vital-trends";
 import {
   AppointmentCard,
   type AppointmentCardData,
@@ -42,12 +43,12 @@ export default async function PatientProfile({
       .from("vitals")
       .select("*")
       .eq("patient_id", id)
-      .order("captured_at", { ascending: false })
-      .limit(1)
-      .maybeSingle(),
+      .order("captured_at", { ascending: true }),
   ]);
 
   const appointments = (appts ?? []) as unknown as AppointmentCardData[];
+  const series = (latest ?? []) as Vitals[];
+  const newest = series.at(-1);
 
   return (
     <div className="space-y-5">
@@ -81,12 +82,14 @@ export default async function PatientProfile({
         </CardBody>
       </Card>
 
-      {latest && (
+      {newest && (
         <div>
           <h2 className="mb-3 text-lg font-bold text-foreground">Latest Vitals</h2>
-          <VitalCards vitals={latest as Vitals} />
+          <VitalCards vitals={newest} />
         </div>
       )}
+
+      <VitalTrends series={series} />
 
       <div>
         <div className="mb-3 flex items-center justify-between">
