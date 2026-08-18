@@ -8,6 +8,8 @@ import { StatusPill } from "@/components/ui/status-pill";
 import { VitalCards } from "@/components/patterns/vital-cards";
 import { NotesThread, type Note } from "@/components/notes/notes-thread";
 import { ConsentCard } from "@/components/notes/consent-card";
+import { PrescriptionView, type Prescription } from "@/components/rx/prescription-view";
+import { LabBlock, type Lab } from "@/components/rx/lab-block";
 import type { Vitals } from "@/lib/vitals";
 
 const statusMeta = {
@@ -38,20 +40,31 @@ export default async function ProviderAppointmentDetail({
     .single();
   if (!appt) notFound();
 
-  const [{ data: notes }, { data: consent }] = await Promise.all([
-    supabase
-      .from("notes")
-      .select("*")
-      .eq("appointment_id", id)
-      .order("created_at", { ascending: true }),
-    supabase
-      .from("consents")
-      .select("granted_by_name, created_at")
-      .eq("appointment_id", id)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle(),
-  ]);
+  const [{ data: notes }, { data: consent }, { data: rxList }, { data: labList }] =
+    await Promise.all([
+      supabase
+        .from("notes")
+        .select("*")
+        .eq("appointment_id", id)
+        .order("created_at", { ascending: true }),
+      supabase
+        .from("consents")
+        .select("granted_by_name, created_at")
+        .eq("appointment_id", id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+      supabase
+        .from("prescriptions")
+        .select("*")
+        .eq("appointment_id", id)
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("lab_requests")
+        .select("*")
+        .eq("appointment_id", id)
+        .order("created_at", { ascending: false }),
+    ]);
 
   const emergency = appt.type === "emergency";
   const p = appt.patient as unknown as {
@@ -105,6 +118,27 @@ export default async function ProviderAppointmentDetail({
         patientId={appt.patient_id}
         existing={consent ?? null}
       />
+
+      {(rxList ?? []).length > 0 && (
+        <div className="space-y-3">
+          <h2 className="text-lg font-bold text-foreground">Prescription</h2>
+          {(rxList ?? []).map((rx) => (
+            <PrescriptionView key={rx.id} rx={rx as Prescription} />
+          ))}
+        </div>
+      )}
+
+      {(labList ?? []).length > 0 && (
+        <div className="space-y-3">
+          <h2 className="text-lg font-bold text-foreground">Lab &amp; Diagnostics</h2>
+          <LabBlock
+            appointmentId={appt.id}
+            labs={(labList ?? []) as Lab[]}
+            canRequest={false}
+            canUpload
+          />
+        </div>
+      )}
 
       <div>
         <h2 className="mb-3 text-lg font-bold text-foreground">Notes</h2>
