@@ -1,8 +1,13 @@
 import { requireRole } from "@/lib/auth/session";
 import { CoverageView } from "@/components/map/coverage-view";
 
-export default async function AdminMap() {
+export default async function AdminMap({
+  searchParams,
+}: {
+  searchParams: Promise<{ type?: string; spec?: string; days?: string }>;
+}) {
   await requireRole("admin");
+  const search = await searchParams;
   return (
     <div className="space-y-6">
       <div>
@@ -11,7 +16,7 @@ export default async function AdminMap() {
           Where field teams have reached — pins and coverage heat map.
         </p>
       </div>
-      <CoverageView />
+      <CoverageView search={search} />
     </div>
   );
 }

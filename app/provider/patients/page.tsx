@@ -1,20 +1,21 @@
 import Link from "next/link";
-import { Plus, UserRound, ChevronRight } from "lucide-react";
+import { Plus, UserRound } from "lucide-react";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
+import { PatientList, type PatientRow } from "@/components/provider/patient-list";
 
 export default async function ProviderPatients() {
   const { profile } = await requireRole("provider");
   const supabase = await createClient();
   const { data } = await supabase
     .from("patients")
-    .select("id, full_name, age, gender")
+    .select("id, full_name, age, gender, mrn, contact")
     .eq("created_by", profile.id)
     .order("created_at", { ascending: false });
 
-  const patients = data ?? [];
+  const patients = (data ?? []) as PatientRow[];
 
   return (
     <div className="space-y-5">
@@ -33,30 +34,7 @@ export default async function ProviderPatients() {
       </div>
 
       {patients.length ? (
-        <div className="space-y-2.5">
-          {patients.map((p) => (
-            <Link key={p.id} href={`/provider/patients/${p.id}`} className="block">
-              <Card className="transition-colors hover:border-primary">
-                <CardBody className="flex items-center gap-3 py-3.5">
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary-soft text-primary">
-                    <UserRound size={20} />
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-semibold text-foreground">
-                      {p.full_name}
-                    </p>
-                    <p className="text-sm text-muted">
-                      {[p.age != null ? `${p.age} yrs` : null, p.gender]
-                        .filter(Boolean)
-                        .join(" · ") || "—"}
-                    </p>
-                  </div>
-                  <ChevronRight size={18} className="text-muted-2" />
-                </CardBody>
-              </Card>
-            </Link>
-          ))}
-        </div>
+        <PatientList patients={patients} />
       ) : (
         <Card>
           <CardBody className="flex flex-col items-center gap-3 py-12 text-center">

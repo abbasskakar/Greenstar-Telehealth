@@ -22,6 +22,7 @@ import { createAppointment } from "@/app/provider/new/actions";
 import { cn } from "@/lib/utils";
 
 type PatientOption = { id: string; full_name: string; age: number | null };
+type CampOption = { id: string; title: string };
 
 const VITAL_FIELDS = [
   { key: "heart_rate", label: "Heart Rate", unit: "bpm", Icon: HeartPulse },
@@ -37,9 +38,16 @@ function num(s: string): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-export function NewAppointmentForm({ patients }: { patients: PatientOption[] }) {
+export function NewAppointmentForm({
+  patients,
+  camps = [],
+}: {
+  patients: PatientOption[];
+  camps?: CampOption[];
+}) {
   const router = useRouter();
   const [emergency, setEmergency] = React.useState(false);
+  const [campId, setCampId] = React.useState("");
   const [mode, setMode] = React.useState<"new" | "existing">(
     patients.length ? "existing" : "new",
   );
@@ -85,6 +93,7 @@ export function NewAppointmentForm({ patients }: { patients: PatientOption[] }) 
       type: emergency ? "emergency" : "regular",
       specialty,
       chief_complaint: complaint || undefined,
+      camp_id: campId || null,
       geo,
       vitals: {
         bp_systolic: num(bpSys),
@@ -295,6 +304,17 @@ export function NewAppointmentForm({ patients }: { patients: PatientOption[] }) 
               className="w-full rounded-lg border border-border bg-surface-2/60 px-3.5 py-3 text-[15px] text-foreground outline-none transition-colors focus:border-primary focus:bg-surface focus:ring-2 focus:ring-primary/15"
             />
           </div>
+          {camps.length > 0 && (
+            <div>
+              <Label htmlFor="camp">Part of a camp? (optional)</Label>
+              <Select id="camp" value={campId} onChange={(e) => setCampId(e.target.value)}>
+                <option value="">Not linked to a camp</option>
+                {camps.map((c) => (
+                  <option key={c.id} value={c.id}>{c.title}</option>
+                ))}
+              </Select>
+            </div>
+          )}
         </CardBody>
       </Card>
 

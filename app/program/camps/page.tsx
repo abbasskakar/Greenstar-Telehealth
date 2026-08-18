@@ -16,6 +16,8 @@ export default async function ProgramCamps() {
     .order("date_start", { ascending: false });
 
   const camps = data ?? [];
+  const reached = camps.reduce((s, c) => s + (c.actual_turnout ?? 0), 0);
+  const completed = camps.filter((c) => c.status === "completed").length;
 
   return (
     <div className="space-y-6">
@@ -28,6 +30,25 @@ export default async function ProgramCamps() {
           <Button><Plus size={18} /> Schedule camp</Button>
         </Link>
       </div>
+
+      {camps.length > 0 && (
+        <div className="grid grid-cols-3 gap-4">
+          {[
+            { label: "Total camps", value: camps.length },
+            { label: "People reached", value: reached },
+            { label: "Completed", value: completed },
+          ].map((s) => (
+            <Card key={s.label}>
+              <CardBody>
+                <p className="font-mono text-2xl font-bold tabular-nums text-foreground">
+                  {s.value.toLocaleString()}
+                </p>
+                <p className="text-sm text-muted">{s.label}</p>
+              </CardBody>
+            </Card>
+          ))}
+        </div>
+      )}
 
       {camps.length ? (
         <div className="grid gap-3 sm:grid-cols-2">

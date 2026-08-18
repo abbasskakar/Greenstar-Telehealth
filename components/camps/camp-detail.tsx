@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Users, Camera, Loader2, CheckCircle2, ImageIcon } from "lucide-react";
+import { Users, Camera, Loader2, CheckCircle2, ImageIcon, Boxes } from "lucide-react";
 import { Card, CardBody } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
@@ -19,7 +19,10 @@ export type Camp = {
   counters: Record<string, number>;
   photos: string[];
   status: string;
+  stock?: Record<string, { available?: number; used?: number }>;
 };
+
+type StockRow = { item: string; available: string; used: string };
 
 const STATUSES = ["scheduled", "active", "completed"];
 
@@ -35,6 +38,26 @@ export function CampDetail({ camp }: { camp: Camp }) {
   const [busy, setBusy] = React.useState(false);
   const [uploading, setUploading] = React.useState(false);
   const [saved, setSaved] = React.useState(false);
+  const [stock, setStock] = React.useState<StockRow[]>(
+    Object.entries(camp.stock ?? {}).map(([item, v]) => ({
+      item,
+      available: (v.available ?? "").toString(),
+      used: (v.used ?? "").toString(),
+    })),
+  );
+  const [stockBusy, setStockBusy] = React.useState(false);
+
+  async function saveStock() {
+    setStockBusy(true);
+    const obj: Record<string, { available: number; used: number }> = {};
+    stock.forEach((r) => {
+      if (r.item.trim())
+        obj[r.item.trim()] = { available: Number(r.available) || 0, used: Number(r.used) || 0 };
+    });
+    await updateCamp(camp.id, { stock: obj });
+    setStockBusy(false);
+    router.refresh();
+  }
 
   async function save() {
     setBusy(true);
@@ -127,6 +150,38 @@ export function CampDetail({ camp }: { camp: Camp }) {
               <Loader2 size={15} className="animate-spin" /> Uploading…
             </p>
           )}
+        </CardBody>
+      </Card>
+
+      <Card>
+        <CardBody className="space-y-3">
+          <div className="flex items-center gap-2 font-semibold text-foreground">
+            <Boxes size={18} className="text-primary" /> Stock / consumables
+          </div>
+          {stock.length > 0 && (
+            <div className="space-y-2">
+              <div className="grid grid-cols-[1fr_auto_auto] gap-2 px-1 text-xs font-semibold uppercase tracking-wide text-muted-2">
+                <span>Item</span><span className="w-20 text-center">Available</span><span className="w-20 text-center">Used</span>
+              </div>
+              {stock.map((r, i) => (
+                <div key={i} className="grid grid-cols-[1fr_auto_auto] gap-2">
+                  <Input value={r.item} placeholder="e.g. Vaccine doses" onChange={(e) => setStock((p) => p.map((x, idx) => (idx === i ? { ...x, item: e.target.value } : x)))} />
+                  <div className="w-20"><Input inputMode="numeric" value={r.available} onChange={(e) => setStock((p) => p.map((x, idx) => (idx === i ? { ...x, available: e.target.value.replace(/\D/g, "") } : x)))} /></div>
+                  <div className="w-20"><Input inputMode="numeric" value={r.used} onChange={(e) => setStock((p) => p.map((x, idx) => (idx === i ? { ...x, used: e.target.value.replace(/\D/g, "") } : x)))} /></div>
+                </div>
+              ))}
+            </div>
+          )}
+          <div className="flex items-center gap-3">
+            <button onClick={() => setStock((p) => [...p, { item: "", available: "", used: "" }])} className="text-sm font-semibold text-primary">
+              + Add item
+            </button>
+            {stock.length > 0 && (
+              <Button size="sm" variant="outline" onClick={saveStock} disabled={stockBusy}>
+                {stockBusy ? "Saving…" : "Save stock"}
+              </Button>
+            )}
+          </div>
         </CardBody>
       </Card>
     </div>

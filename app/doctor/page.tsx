@@ -9,6 +9,7 @@ import {
 } from "@/components/patterns/appointment-card";
 import { RealtimeRefresh } from "@/components/notifications/realtime-refresh";
 import { DutyToggle } from "@/components/duty/duty-toggle";
+import { SpecialtyFilter } from "@/components/doctor/specialty-filter";
 import { cn } from "@/lib/utils";
 
 const FILTERS = [
@@ -21,16 +22,16 @@ const FILTERS = [
 export default async function DoctorHome({
   searchParams,
 }: {
-  searchParams: Promise<{ filter?: string }>;
+  searchParams: Promise<{ filter?: string; spec?: string }>;
 }) {
   const { profile } = await requireRole("doctor");
-  const { filter = "all" } = await searchParams;
+  const { filter = "all", spec = "" } = await searchParams;
   const supabase = await createClient();
 
   let query = supabase
     .from("appointments")
     .select(
-      `id, type, status, specialty, chief_complaint, patient_id,
+      `id, type, status, specialty, chief_complaint, patient_id, created_at, assigned_doctor_name,
        patient:patients ( full_name, age, gender ),
        vitals ( bp_systolic, bp_diastolic, heart_rate, temperature_f, spo2 )`,
     );
@@ -39,6 +40,8 @@ export default async function DoctorHome({
   else if (filter === "pending") query = query.eq("status", "pending");
   else if (filter === "completed") query = query.eq("status", "completed");
   else query = query.neq("status", "cancelled");
+
+  if (spec) query = query.eq("specialty", spec);
 
   const { data } = await query
     .order("type", { ascending: true })
@@ -61,24 +64,31 @@ export default async function DoctorHome({
         <DutyToggle initial={profile.duty} />
       </div>
 
-      <div className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
-        {FILTERS.map((f) => {
-          const active = f.key === filter;
-          return (
-            <Link
-              key={f.key}
-              href={f.key === "all" ? "/doctor" : `/doctor?filter=${f.key}`}
-              className={cn(
-                "shrink-0 rounded-full px-3.5 py-1.5 text-sm font-semibold transition-colors",
-                active
-                  ? "bg-primary text-primary-contrast"
-                  : "bg-surface-2 text-muted hover:text-foreground",
-              )}
-            >
-              {f.label}
-            </Link>
-          );
-        })}
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="no-scrollbar -mx-1 flex flex-1 gap-2 overflow-x-auto px-1 pb-1">
+          {FILTERS.map((f) => {
+            const active = f.key === filter;
+            const params = new URLSearchParams();
+            if (f.key !== "all") params.set("filter", f.key);
+            if (spec) params.set("spec", spec);
+            const qs = params.toString();
+            return (
+              <Link
+                key={f.key}
+                href={`/doctor${qs ? `?${qs}` : ""}`}
+                className={cn(
+                  "shrink-0 rounded-full px-3.5 py-1.5 text-sm font-semibold transition-colors",
+                  active
+                    ? "bg-primary text-primary-contrast"
+                    : "bg-surface-2 text-muted hover:text-foreground",
+                )}
+              >
+                {f.label}
+              </Link>
+            );
+          })}
+        </div>
+        <SpecialtyFilter filter={filter} spec={spec} />
       </div>
 
       {appts.length ? (

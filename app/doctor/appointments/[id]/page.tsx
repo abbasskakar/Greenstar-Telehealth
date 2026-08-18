@@ -186,6 +186,7 @@ export default async function DoctorAppointmentDetail({
           id={appt.id}
           status={appt.status}
           emergency={emergency}
+          hasConsent={!!consent}
         />
       </div>
     </div>

@@ -16,10 +16,12 @@ export function AppointmentActions({
   id,
   status,
   emergency,
+  hasConsent,
 }: {
   id: string;
   status: Status;
   emergency: boolean;
+  hasConsent: boolean;
 }) {
   const router = useRouter();
   const [busy, setBusy] = React.useState(false);
@@ -59,7 +61,7 @@ export function AppointmentActions({
           <Button
             size="lg"
             className="w-full"
-            disabled={busy}
+            disabled={busy || !hasConsent}
             onClick={() =>
               run(async () => {
                 const res = await startCall(id);
@@ -70,6 +72,11 @@ export function AppointmentActions({
           >
             <Video size={18} /> Start video call
           </Button>
+          {!hasConsent && (
+            <p className="text-center text-xs font-medium text-warning">
+              Record patient consent above before starting the call.
+            </p>
+          )}
           <Button
             size="lg"
             variant="outline"

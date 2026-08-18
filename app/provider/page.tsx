@@ -18,7 +18,7 @@ export default async function ProviderHome() {
   const { data } = await supabase
     .from("appointments")
     .select(
-      `id, type, status, specialty, chief_complaint, patient_id,
+      `id, type, status, specialty, chief_complaint, patient_id, created_at, assigned_doctor_name,
        patient:patients ( full_name, age, gender ),
        vitals ( bp_systolic, bp_diastolic, heart_rate, temperature_f, spo2 )`,
     )

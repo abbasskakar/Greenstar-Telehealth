@@ -12,7 +12,11 @@ export async function claimAppointment(id: string): Promise<Result> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("appointments")
-    .update({ status: "claimed", assigned_doctor_id: profile.id })
+    .update({
+      status: "claimed",
+      assigned_doctor_id: profile.id,
+      assigned_doctor_name: profile.full_name,
+    })
     .eq("id", id)
     .eq("status", "pending")
     .select("id");

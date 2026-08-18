@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { ChevronRight, AlertTriangle } from "lucide-react";
+import { ChevronRight, AlertTriangle, UserCheck } from "lucide-react";
 import { Card, CardBody } from "@/components/ui/card";
 import { StatusPill } from "@/components/ui/status-pill";
 import { VitalSummary } from "@/components/patterns/vital-cards";
+import { WaitTimer } from "@/components/patterns/wait-timer";
 import type { Vitals } from "@/lib/vitals";
 import { cn } from "@/lib/utils";
 
@@ -14,6 +15,8 @@ export type AppointmentCardData = {
   chief_complaint: string | null;
   patient: { full_name: string; age: number | null; gender: string | null } | null;
   vitals: Vitals[] | null;
+  created_at?: string | null;
+  assigned_doctor_name?: string | null;
 };
 
 const statusTone = {
@@ -76,6 +79,18 @@ export function AppointmentCard({
           {appt.chief_complaint && (
             <p className="line-clamp-2 text-sm text-muted">{appt.chief_complaint}</p>
           )}
+
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            {appt.status === "pending" && appt.created_at && (
+              <WaitTimer since={appt.created_at} />
+            )}
+            {(appt.status === "claimed" || appt.status === "in_consult") &&
+              appt.assigned_doctor_name && (
+                <span className="inline-flex items-center gap-1 text-xs font-medium text-info">
+                  <UserCheck size={12} /> {appt.assigned_doctor_name}
+                </span>
+              )}
+          </div>
 
           {v && <VitalSummary vitals={v} />}
 

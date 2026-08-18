@@ -28,6 +28,7 @@ const schema = z.object({
   type: z.enum(["emergency", "regular"]),
   specialty: z.string().trim().min(1, "Select a specialty"),
   chief_complaint: z.string().trim().optional(),
+  camp_id: z.string().uuid().nullable().optional(),
   vitals: vitalsSchema,
   geo: z.object({ lat: z.number(), lng: z.number() }).nullable().optional(),
 });
@@ -76,6 +77,7 @@ export async function createAppointment(
       type: data.type,
       specialty: data.specialty,
       chief_complaint: data.chief_complaint || null,
+      camp_id: data.camp_id ?? null,
       geo_lat: data.geo?.lat ?? null,
       geo_lng: data.geo?.lng ?? null,
       status: "pending",

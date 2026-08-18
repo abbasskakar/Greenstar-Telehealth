@@ -2,16 +2,33 @@ import { MapPinned, AlertTriangle, CalendarDays } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardBody } from "@/components/ui/card";
 import { CoverageMap, type MapPoint } from "./coverage-map";
+import { MapFilters } from "./map-filters";
 
-export async function CoverageView() {
+export async function CoverageView({
+  search = {},
+}: {
+  search?: { type?: string; spec?: string; days?: string };
+}) {
   const supabase = await createClient();
-  const { data } = await supabase
+  let query = supabase
     .from("appointments")
     .select(
       `id, type, status, specialty, geo_lat, geo_lng, created_at,
        patient:patients ( full_name )`,
     )
-    .not("geo_lat", "is", null)
+    .not("geo_lat", "is", null);
+
+  if (search.type === "emergency" || search.type === "regular")
+    query = query.eq("type", search.type);
+  if (search.spec) query = query.eq("specialty", search.spec);
+  const days = Number(search.days);
+  if (days > 0) {
+    const since = new Date();
+    since.setDate(since.getDate() - days);
+    query = query.gte("created_at", since.toISOString());
+  }
+
+  const { data } = await query
     .order("created_at", { ascending: false })
     .limit(500);
 
@@ -50,6 +67,11 @@ export async function CoverageView() {
 
   return (
     <div className="space-y-5">
+      <MapFilters
+        type={search.type ?? "all"}
+        spec={search.spec ?? ""}
+        days={search.days ?? "all"}
+      />
       <div className="grid grid-cols-3 gap-4">
         {stats.map((s) => (
           <Card key={s.label}>

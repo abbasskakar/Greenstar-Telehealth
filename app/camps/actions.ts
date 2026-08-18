@@ -49,6 +49,7 @@ export async function updateCamp(
     counters?: Record<string, number>;
     status?: string;
     photos?: string[];
+    stock?: Record<string, { available: number; used: number }>;
   },
 ): Promise<Result> {
   await requireRole([...ROLES]);
