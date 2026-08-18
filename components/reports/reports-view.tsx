@@ -23,6 +23,7 @@ export async function ReportsView() {
     { count: providers },
     { count: doctors },
     { data: camps },
+    { data: patientRows },
   ] = await Promise.all([
     supabase.from("patients").select("*", { count: "exact", head: true }),
     supabase
@@ -32,7 +33,23 @@ export async function ReportsView() {
     supabase.from("profiles").select("*", { count: "exact", head: true }).eq("role", "provider"),
     supabase.from("profiles").select("*", { count: "exact", head: true }).eq("role", "doctor"),
     supabase.from("camps").select("actual_turnout, counters"),
+    supabase.from("patients").select("gender").limit(5000),
   ]);
+
+  // Patients served by gender (donor reporting)
+  const genderCounts = { male: 0, female: 0, other: 0 };
+  ((patientRows ?? []) as { gender: string | null }[]).forEach((p) => {
+    const g = (p.gender ?? "").toLowerCase();
+    if (g === "male" || g === "m") genderCounts.male++;
+    else if (g === "female" || g === "f") genderCounts.female++;
+    else genderCounts.other++;
+  });
+  const genderTotal = genderCounts.male + genderCounts.female + genderCounts.other;
+  const genderBars = [
+    { label: "Female", value: genderCounts.female, cls: "bg-purple" },
+    { label: "Male", value: genderCounts.male, cls: "bg-info" },
+    { label: "Other / unspecified", value: genderCounts.other, cls: "bg-muted-2" },
+  ];
 
   const rows = (appts ?? []) as {
     type: string;
@@ -104,6 +121,9 @@ export async function ReportsView() {
     camp_people_reached: campReach,
     avg_response_seconds: respSecs ?? 0,
     avg_time_to_call_seconds: callSecs ?? 0,
+    patients_female: genderCounts.female,
+    patients_male: genderCounts.male,
+    patients_other: genderCounts.other,
   };
 
   const exportRows: ReportRow[] = rows.map((r) => ({
@@ -175,6 +195,31 @@ export async function ReportsView() {
           </CardBody>
         </Card>
       </div>
+
+      <Card>
+        <CardBody>
+          <h3 className="mb-4 font-bold text-foreground">Patients served by gender</h3>
+          {genderTotal ? (
+            <ul className="space-y-3">
+              {genderBars.map((b) => (
+                <li key={b.label}>
+                  <div className="mb-1 flex items-center justify-between text-sm">
+                    <span className="text-foreground">{b.label}</span>
+                    <span className="font-semibold tabular-nums text-muted">
+                      {b.value} · {Math.round((b.value / genderTotal) * 100)}%
+                    </span>
+                  </div>
+                  <div className="h-2 overflow-hidden rounded-full bg-surface-2">
+                    <div className={`h-full rounded-full ${b.cls}`} style={{ width: `${(b.value / genderTotal) * 100}%` }} />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-muted">No patient records yet.</p>
+          )}
+        </CardBody>
+      </Card>
 
       <Card>
         <CardBody>

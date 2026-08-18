@@ -45,10 +45,21 @@ export function JitsiRoom({
           prejoinPageEnabled: false,
           disableDeepLinking: true,
           startWithAudioMuted: false,
+          // Low-bandwidth resilience for weak field connections:
+          // cap send resolution, enable last-N + adaptive layer suspension,
+          // and drop to audio-only automatically when the link degrades.
+          resolution: 360,
+          constraints: { video: { height: { ideal: 360, max: 480, min: 180 } } },
+          startVideoMuted: 10,
+          enableLayerSuspension: true,
+          channelLastN: 2,
+          disableAudioLevels: true,
+          p2p: { enabled: true },
         },
         interfaceConfigOverwrite: {
           MOBILE_APP_PROMO: false,
           SHOW_JITSI_WATERMARK: false,
+          VIDEO_QUALITY_LABEL_DISABLED: false,
         },
       });
       api.addEventListener("readyToClose", async () => {

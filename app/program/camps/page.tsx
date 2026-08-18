@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import { StatusPill } from "@/components/ui/status-pill";
 import { CampCalendar } from "@/components/camps/camp-calendar";
+import { CampMap, type CampPoint } from "@/components/camps/camp-map";
 import { campMeta, CAMP_TONE } from "@/lib/constants/camps";
 
 export default async function ProgramCamps() {
@@ -13,12 +14,23 @@ export default async function ProgramCamps() {
   const supabase = await createClient();
   const { data } = await supabase
     .from("camps")
-    .select("id, type, title, date_start, date_end, location, status, actual_turnout")
+    .select("id, type, title, date_start, date_end, location, status, actual_turnout, geo_lat, geo_lng")
     .order("date_start", { ascending: false });
 
   const camps = data ?? [];
   const reached = camps.reduce((s, c) => s + (c.actual_turnout ?? 0), 0);
   const completed = camps.filter((c) => c.status === "completed").length;
+  const campPoints: CampPoint[] = camps
+    .filter((c) => c.geo_lat != null && c.geo_lng != null)
+    .map((c) => ({
+      id: c.id,
+      lat: c.geo_lat as number,
+      lng: c.geo_lng as number,
+      title: c.title,
+      typeLabel: campMeta(c.type).label,
+      date: c.date_start,
+      status: c.status,
+    }));
 
   return (
     <div className="space-y-6">
@@ -52,6 +64,14 @@ export default async function ProgramCamps() {
       )}
 
       {camps.length > 0 && <CampCalendar camps={camps} />}
+
+      {campPoints.length > 0 && (
+        <Card>
+          <CardBody>
+            <CampMap points={campPoints} apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY ?? ""} />
+          </CardBody>
+        </Card>
+      )}
 
       {camps.length ? (
         <div className="grid gap-3 sm:grid-cols-2">

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Tent } from "lucide-react";
+import { Tent, MapPin } from "lucide-react";
 import { Card, CardBody } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
@@ -20,8 +20,18 @@ export function CampForm() {
   const [team, setTeam] = React.useState("");
   const [expected, setExpected] = React.useState("");
   const [notes, setNotes] = React.useState("");
+  const [geo, setGeo] = React.useState<{ lat: number; lng: number } | null>(null);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      (pos) => setGeo({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      () => setGeo(null),
+      { enableHighAccuracy: true, timeout: 10000 },
+    );
+  }, []);
 
   async function submit() {
     setLoading(true);
@@ -35,6 +45,7 @@ export function CampForm() {
       team,
       expected_turnout: expected ? Number(expected) : null,
       notes,
+      geo,
     });
     setLoading(false);
     if (!res.ok) setError(res.error ?? "Could not save.");
@@ -68,6 +79,10 @@ export function CampForm() {
           <div>
             <Label htmlFor="loc">Location</Label>
             <Input id="loc" placeholder="Village / area" value={location} onChange={(e) => setLocation(e.target.value)} />
+            <p className="mt-1 flex items-center gap-1 text-xs text-muted">
+              <MapPin size={12} className={geo ? "text-success" : "text-muted-2"} />
+              {geo ? `GPS captured (${geo.lat.toFixed(4)}, ${geo.lng.toFixed(4)})` : "Auto geo-tagging location…"}
+            </p>
           </div>
           <div>
             <Label htmlFor="team">Team / partner</Label>

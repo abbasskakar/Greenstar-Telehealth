@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Users,
+  UserPlus,
   CalendarDays,
   Settings,
   Tent,
@@ -26,6 +27,7 @@ const NAVS: Record<SidebarVariant, NavItem[]> = {
   admin: [
     { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
     { href: "/admin/users", label: "Users", icon: Users },
+    { href: "/admin/registrations", label: "Registrations", icon: UserPlus },
     { href: "/admin/appointments", label: "Appointments", icon: CalendarDays },
     { href: "/admin/map", label: "Coverage Map", icon: Map },
     { href: "/admin/audit", label: "Audit Log", icon: ScrollText },

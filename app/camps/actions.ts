@@ -16,6 +16,7 @@ export async function createCamp(input: {
   team?: string;
   expected_turnout?: number | null;
   notes?: string;
+  geo?: { lat: number; lng: number } | null;
 }): Promise<Result> {
   const { profile } = await requireRole([...ROLES]);
   if (!input.title?.trim()) return { ok: false, error: "Enter a title." };
@@ -33,6 +34,8 @@ export async function createCamp(input: {
       team: input.team?.trim() || null,
       expected_turnout: input.expected_turnout ?? null,
       notes: input.notes?.trim() || null,
+      geo_lat: input.geo?.lat ?? null,
+      geo_lng: input.geo?.lng ?? null,
       created_by: profile.id,
     })
     .select("id")

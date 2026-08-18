@@ -71,6 +71,46 @@ export function IncomingCallListener({ providerId }: { providerId: string }) {
     };
   }, [providerId]);
 
+  // Ringtone + vibration while ringing (WhatsApp-style)
+  React.useEffect(() => {
+    if (!call) return;
+    let stopped = false;
+    let ctx: AudioContext | null = null;
+    try {
+      const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      ctx = new AC();
+      const ring = () => {
+        if (stopped || !ctx) return;
+        [0, 0.4].forEach((offset) => {
+          const osc = ctx!.createOscillator();
+          const gain = ctx!.createGain();
+          osc.connect(gain);
+          gain.connect(ctx!.destination);
+          osc.frequency.value = 480;
+          const t = ctx!.currentTime + offset;
+          gain.gain.setValueAtTime(0.0001, t);
+          gain.gain.exponentialRampToValueAtTime(0.25, t + 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.35);
+          osc.start(t);
+          osc.stop(t + 0.4);
+        });
+      };
+      ring();
+      const interval = setInterval(ring, 2200);
+      navigator.vibrate?.([500, 400, 500, 400]);
+      const vib = setInterval(() => navigator.vibrate?.([500, 400, 500, 400]), 2200);
+      return () => {
+        stopped = true;
+        clearInterval(interval);
+        clearInterval(vib);
+        navigator.vibrate?.(0);
+        ctx?.close();
+      };
+    } catch {
+      /* audio blocked — visual ring still shows */
+    }
+  }, [call]);
+
   if (!call) return null;
 
   async function accept() {
