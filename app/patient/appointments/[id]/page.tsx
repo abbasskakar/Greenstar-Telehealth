@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Stethoscope } from "lucide-react";
+import { ArrowLeft, Stethoscope, FileDown, Activity } from "lucide-react";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardBody } from "@/components/ui/card";
@@ -8,6 +8,9 @@ import { StatusPill } from "@/components/ui/status-pill";
 import { NotesThread, type Note } from "@/components/notes/notes-thread";
 import { PrescriptionView, type Prescription } from "@/components/rx/prescription-view";
 import { LabBlock, type Lab } from "@/components/rx/lab-block";
+import { VitalCards } from "@/components/patterns/vital-cards";
+import { CancelAppointmentButton } from "@/components/patient/cancel-appointment";
+import type { Vitals } from "@/lib/vitals";
 
 const statusMeta = {
   pending: { tone: "warning", label: "Pending" },
@@ -28,7 +31,7 @@ export default async function PatientAppointmentDetail({
 
   const { data: appt } = await supabase
     .from("appointments")
-    .select("id, type, status, specialty, chief_complaint, patient_id")
+    .select("id, type, status, specialty, chief_complaint, patient_id, vitals ( * )")
     .eq("id", id)
     .single();
   if (!appt) notFound();
@@ -40,6 +43,8 @@ export default async function PatientAppointmentDetail({
   ]);
 
   const meta = statusMeta[appt.status as keyof typeof statusMeta];
+  const vitals = (appt.vitals as unknown as Vitals[])?.[0];
+  const canCancel = ["pending", "claimed"].includes(appt.status);
 
   return (
     <div className="space-y-5">
@@ -62,11 +67,28 @@ export default async function PatientAppointmentDetail({
         </CardBody>
       </Card>
 
+      {vitals && (
+        <div className="space-y-3">
+          <h2 className="flex items-center gap-2 text-lg font-bold text-foreground">
+            <Activity size={18} className="text-primary" /> Recorded vitals
+          </h2>
+          <VitalCards vitals={vitals} />
+        </div>
+      )}
+
       {(rxList ?? []).length > 0 && (
         <div className="space-y-3">
           <h2 className="text-lg font-bold text-foreground">Prescription</h2>
           {(rxList ?? []).map((rx) => (
-            <PrescriptionView key={rx.id} rx={rx as Prescription} />
+            <div key={rx.id} className="space-y-2">
+              <PrescriptionView rx={rx as Prescription} />
+              <Link
+                href={`/prescription/${rx.id}`}
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline"
+              >
+                <FileDown size={16} /> Download / print PDF
+              </Link>
+            </div>
           ))}
         </div>
       )}
@@ -82,6 +104,8 @@ export default async function PatientAppointmentDetail({
         <h2 className="mb-3 text-lg font-bold text-foreground">Messages</h2>
         <NotesThread appointmentId={appt.id} currentUserId={user.id} initial={(notes ?? []) as Note[]} />
       </div>
+
+      {canCancel && <CancelAppointmentButton id={appt.id} />}
     </div>
   );
 }

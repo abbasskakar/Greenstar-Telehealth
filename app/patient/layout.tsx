@@ -1,4 +1,6 @@
 import { MobileShell } from "@/components/layout/mobile-shell";
+import { IncomingCallListener } from "@/components/call/incoming-call";
+import { PatientTour } from "@/components/patient/patient-tour";
 import { requireRole } from "@/lib/auth/session";
 
 export default async function PatientLayout({
@@ -6,6 +8,13 @@ export default async function PatientLayout({
 }: {
   children: React.ReactNode;
 }) {
-  await requireRole("public");
-  return <MobileShell variant="patient">{children}</MobileShell>;
+  const { profile } = await requireRole("public");
+  return (
+    <MobileShell variant="patient">
+      {/* A doctor's call targets the appointment creator (this public user). */}
+      <IncomingCallListener providerId={profile.id} />
+      <PatientTour />
+      {children}
+    </MobileShell>
+  );
 }

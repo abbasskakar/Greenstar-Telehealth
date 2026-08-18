@@ -8,11 +8,13 @@ import { createClient } from "@/lib/supabase/server";
 const schema = z.object({
   specialty: z.string().trim().min(1, "Select a specialty"),
   chief_complaint: z.string().trim().min(3, "Describe your concern"),
+  emergency: z.boolean().optional(),
 });
 
 export async function createPublicAppointment(input: {
   specialty: string;
   chief_complaint: string;
+  emergency?: boolean;
 }): Promise<{ ok: boolean; error?: string; id?: string }> {
   const { profile } = await requireRole("public");
   const parsed = schema.safeParse(input);
@@ -31,7 +33,7 @@ export async function createPublicAppointment(input: {
     .insert({
       patient_id: patient.id,
       created_by: profile.id,
-      type: "regular",
+      type: parsed.data.emergency ? "emergency" : "regular",
       specialty: parsed.data.specialty,
       chief_complaint: parsed.data.chief_complaint,
       status: "pending",

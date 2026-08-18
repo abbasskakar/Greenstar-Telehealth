@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus, CalendarHeart } from "lucide-react";
+import { Plus, CalendarHeart, Activity } from "lucide-react";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardBody } from "@/components/ui/card";
@@ -7,6 +7,8 @@ import {
   AppointmentCard,
   type AppointmentCardData,
 } from "@/components/patterns/appointment-card";
+import { VitalTrends } from "@/components/patterns/vital-trends";
+import type { Vitals } from "@/lib/vitals";
 
 export default async function PatientHome() {
   const { profile } = await requireRole("public");
@@ -24,6 +26,14 @@ export default async function PatientHome() {
     .order("created_at", { ascending: false });
 
   const appts = (data ?? []) as unknown as AppointmentCardData[];
+
+  // Vitals across this patient's visits (oldest → newest) for trend sparklines.
+  const { data: vitalsData } = await supabase
+    .from("vitals")
+    .select("bp_systolic, bp_diastolic, heart_rate, temperature_f, spo2, hemoglobin, blood_sugar, created_at")
+    .order("created_at", { ascending: true })
+    .limit(24);
+  const vitalSeries = (vitalsData ?? []) as unknown as Vitals[];
 
   return (
     <div className="space-y-6">
@@ -43,6 +53,15 @@ export default async function PatientHome() {
           </CardBody>
         </Card>
       </Link>
+
+      {vitalSeries.length >= 2 && (
+        <div>
+          <h2 className="mb-3 flex items-center gap-2 text-lg font-bold text-foreground">
+            <Activity size={18} className="text-primary" /> Health trends
+          </h2>
+          <VitalTrends series={vitalSeries} />
+        </div>
+      )}
 
       <div>
         <h2 className="mb-3 text-lg font-bold text-foreground">My Appointments</h2>

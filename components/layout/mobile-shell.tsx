@@ -16,7 +16,8 @@ export function MobileShell({
         {children}
       </main>
       <BottomNav variant={variant} />
-      <OnboardingTour />
+      {/* Field-worker setup tour for staff; patients get their own PatientTour. */}
+      {variant !== "patient" && <OnboardingTour />}
     </div>
   );
 }
