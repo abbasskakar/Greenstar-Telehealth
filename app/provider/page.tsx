@@ -4,6 +4,7 @@ import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardBody } from "@/components/ui/card";
 import { DutyHeartbeat } from "@/components/duty/duty-heartbeat";
+import { DutyToggle } from "@/components/duty/duty-toggle";
 import {
   AppointmentCard,
   type AppointmentCardData,
@@ -32,12 +33,15 @@ export default async function ProviderHome() {
   return (
     <div className="space-y-6">
       <DutyHeartbeat />
-      <div>
-        <p className="text-sm font-medium text-muted">Welcome back</p>
-        <h1 className="text-2xl font-bold text-foreground">{firstName}</h1>
-        <p className="mt-1 text-[15px] text-muted">
-          Here is your patient overview for today.
-        </p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-sm font-medium text-muted">Welcome back</p>
+          <h1 className="text-2xl font-bold text-foreground">{firstName}</h1>
+          <p className="mt-1 text-[15px] text-muted">
+            Here is your patient overview for today.
+          </p>
+        </div>
+        <DutyToggle initial={profile.duty} />
       </div>
 
       <div className="grid grid-cols-2 gap-3">
