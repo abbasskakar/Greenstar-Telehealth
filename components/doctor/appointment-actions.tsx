@@ -8,6 +8,7 @@ import {
   claimAppointment,
   updateAppointmentStatus,
 } from "@/app/doctor/appointments/actions";
+import { startCall } from "@/app/call/actions";
 
 type Status = "pending" | "claimed" | "in_consult" | "completed" | "cancelled";
 
@@ -55,7 +56,18 @@ export function AppointmentActions({
 
       {(status === "claimed" || status === "in_consult") && (
         <>
-          <Button size="lg" className="w-full" disabled title="Video module coming soon">
+          <Button
+            size="lg"
+            className="w-full"
+            disabled={busy}
+            onClick={() =>
+              run(async () => {
+                const res = await startCall(id);
+                if (res.ok) router.push(`/call/${res.sessionId}`);
+                return res;
+              })
+            }
+          >
             <Video size={18} /> Start video call
           </Button>
           <Button

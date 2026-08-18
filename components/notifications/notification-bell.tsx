@@ -17,13 +17,16 @@ export function NotificationBell({
   React.useEffect(() => {
     const supabase = createClient();
     let channel: ReturnType<typeof supabase.channel> | null = null;
+    let cancelled = false;
     (async () => {
       const { data } = await supabase.auth.getSession();
+      if (cancelled) return;
       if (data.session?.access_token) {
         await supabase.realtime.setAuth(data.session.access_token);
       }
+      if (cancelled) return;
       channel = supabase
-        .channel(`notif-bell:${userId}`)
+        .channel(`notif-bell:${userId}:${Math.random().toString(36).slice(2)}`)
         .on(
           "postgres_changes",
           {
@@ -35,8 +38,13 @@ export function NotificationBell({
           () => setUnread((u) => u + 1),
         )
         .subscribe();
+      if (cancelled) {
+        supabase.removeChannel(channel);
+        channel = null;
+      }
     })();
     return () => {
+      cancelled = true;
       if (channel) supabase.removeChannel(channel);
     };
   }, [userId]);

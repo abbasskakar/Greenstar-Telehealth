@@ -3,12 +3,12 @@ import { Inbox } from "lucide-react";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardBody } from "@/components/ui/card";
-import { StatusPill } from "@/components/ui/status-pill";
 import {
   AppointmentCard,
   type AppointmentCardData,
 } from "@/components/patterns/appointment-card";
 import { RealtimeRefresh } from "@/components/notifications/realtime-refresh";
+import { DutyToggle } from "@/components/duty/duty-toggle";
 import { cn } from "@/lib/utils";
 
 const FILTERS = [
@@ -58,9 +58,7 @@ export default async function DoctorHome({
             Live queue{profile.specialty ? ` · ${profile.specialty}` : ""}
           </div>
         </div>
-        <StatusPill tone={profile.duty === "on_duty" ? "success" : "neutral"}>
-          {profile.duty === "on_duty" ? "On Duty" : "Off Duty"}
-        </StatusPill>
+        <DutyToggle initial={profile.duty} />
       </div>
 
       <div className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
