@@ -72,7 +72,7 @@ export default async function PatientAppointmentChat({
   );
 
   return (
-    <div className="flex h-[calc(100dvh-10rem)] min-h-[420px] flex-col gap-3">
+    <div className="flex h-full min-h-0 flex-col gap-3">
       <div className="flex shrink-0 items-center justify-between">
         <Link
           href="/patient/appointments"
