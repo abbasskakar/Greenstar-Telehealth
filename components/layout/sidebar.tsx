@@ -70,9 +70,9 @@ export function Sidebar({
                 <Link
                   href={item.href}
                   className={cn(
-                    "flex items-center gap-3 rounded-lg px-3 py-2.5 text-[15px] font-medium transition-colors",
+                    "flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-semibold transition-all",
                     active
-                      ? "bg-primary text-primary-contrast"
+                      ? "bg-primary text-primary-contrast shadow-brand"
                       : "text-muted hover:bg-surface-2 hover:text-foreground",
                   )}
                 >

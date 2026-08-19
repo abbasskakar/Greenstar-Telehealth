@@ -12,7 +12,7 @@ export const Select = React.forwardRef<
     <select
       ref={ref}
       className={cn(
-        "h-12 w-full appearance-none rounded-lg border border-border bg-surface-2/60 px-3.5 pr-10 text-[15px] text-foreground outline-none transition-colors focus:border-primary focus:bg-surface focus:ring-2 focus:ring-primary/15",
+        "h-12 w-full appearance-none rounded-xl border border-border-strong bg-surface px-3.5 pr-10 text-[15px] text-foreground outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/25",
         className,
       )}
       {...props}
@@ -21,7 +21,7 @@ export const Select = React.forwardRef<
     </select>
     <ChevronDown
       size={18}
-      className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted-2"
+      className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted"
     />
   </div>
 ));

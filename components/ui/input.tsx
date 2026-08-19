@@ -12,11 +12,11 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, icon, trailing, ...props }, ref) => (
     <div
       className={cn(
-        "flex h-12 items-center gap-2.5 rounded-lg border border-border bg-surface-2/60 px-3.5 transition-colors focus-within:border-primary focus-within:bg-surface focus-within:ring-2 focus-within:ring-primary/15",
+        "flex h-12 items-center gap-2.5 rounded-xl border border-border-strong bg-surface px-3.5 transition-all focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/25",
         className,
       )}
     >
-      {icon && <span className="shrink-0 text-muted-2">{icon}</span>}
+      {icon && <span className="shrink-0 text-muted">{icon}</span>}
       <input
         ref={ref}
         className="min-w-0 flex-1 bg-transparent text-[15px] text-foreground outline-none placeholder:text-muted-2"

@@ -19,23 +19,22 @@ export function ProfileView({
     <div className="mx-auto max-w-lg space-y-5">
       <h1 className="text-2xl font-bold text-foreground">Profile</h1>
 
-      <Card>
-        <CardBody className="flex items-center gap-4">
-          <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-primary-soft text-primary">
-            <UserRound size={28} />
+      <Card className="overflow-hidden">
+        <div className="gs-brand-gradient h-20" />
+        <CardBody className="pt-0">
+          <span className="-mt-10 mb-3 flex h-20 w-20 items-center justify-center rounded-full border-4 border-surface bg-primary text-primary-contrast shadow-pop">
+            <UserRound size={34} />
           </span>
-          <div className="min-w-0">
-            <p className="truncate text-lg font-bold text-foreground">{name}</p>
-            <div className="mt-1 flex flex-wrap items-center gap-2">
-              <StatusPill tone="primary" dot={false}>
-                {ROLE_LABEL[role]}
+          <p className="truncate text-xl font-bold text-foreground">{name}</p>
+          <div className="mt-1.5 flex flex-wrap items-center gap-2">
+            <StatusPill tone="primary" dot={false}>
+              {ROLE_LABEL[role]}
+            </StatusPill>
+            {specialty && (
+              <StatusPill tone="neutral" dot={false}>
+                {specialty}
               </StatusPill>
-              {specialty && (
-                <StatusPill tone="neutral" dot={false}>
-                  {specialty}
-                </StatusPill>
-              )}
-            </div>
+            )}
           </div>
         </CardBody>
       </Card>

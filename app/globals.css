@@ -7,85 +7,93 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* =========================================================================
-   Greenstar Telehealth — Design System ("Green-forward, refined")
-   Raw tokens live on :root / .dark; @theme maps them to Tailwind utilities.
+   Greenstar Telehealth — Design System v2 ("Premium Clinical")
+   Fresh teal-green, high-contrast, field-first. Original — not a template.
+   Raw tokens on :root / .dark; @theme maps them to Tailwind utilities.
    ========================================================================= */
 :root {
-  /* Surfaces & ink */
-  --background: #f3f7f4;
+  /* Surfaces & ink — crisp, cool clinical whites with strong ink */
+  --background: #eef3f2;
   --surface: #ffffff;
-  --surface-2: #e9f0eb;
-  --surface-3: #dfe8e2;
-  --foreground: #14201b;
-  --muted: #5a6b62;
-  --muted-2: #7c8b83;
-  --border: #d9e3dd;
-  --border-strong: #c5d2ca;
+  --surface-2: #eaf1ef;
+  --surface-3: #dde8e4;
+  --foreground: #0d1a16;
+  --muted: #48584f;          /* darker than v1 → readable everywhere */
+  --muted-2: #64756c;
+  --border: #d7e2dd;
+  --border-strong: #bcccc4;
 
-  /* Brand — deep evergreen */
-  --primary: #0f7a57;
-  --primary-strong: #0a5c42;
+  /* Brand — fresh teal-green */
+  --primary: #0c9d76;
+  --primary-strong: #087a5c;
   --primary-contrast: #ffffff;
-  --primary-soft: #e2f1ea;
+  --primary-soft: #d7f3ea;
 
-  /* Signature "pulse" accent — live / active states */
-  --pulse: #14b98a;
-  --pulse-soft: #d6f5ea;
+  /* Signature "pulse" — live / active states, brighter mint-teal */
+  --pulse: #14c79a;
+  --pulse-soft: #cdf6ec;
 
-  /* Semantic status */
-  --emergency: #d13a3a;
-  --emergency-soft: #fbe9e9;
-  --info: #2e72c7;
-  --info-soft: #e8f1fb;
-  --warning: #b9790d;
-  --warning-soft: #f9f0d8;
-  --success: #1e9e5a;
-  --success-soft: #e2f4ea;
-  --purple: #6b4fa8;
-  --purple-soft: #efeaf8;
+  /* Semantic status — saturated for clarity */
+  --emergency: #dc2f36;
+  --emergency-soft: #fce8e8;
+  --info: #2563eb;
+  --info-soft: #e6effd;
+  --warning: #b26f06;
+  --warning-soft: #f9eed4;
+  --success: #12965a;
+  --success-soft: #d9f3e5;
+  --purple: #7a51cf;
+  --purple-soft: #ece4fb;
 
-  /* Elevation */
-  --shadow-sm: 0 1px 2px rgba(16, 40, 30, 0.06);
-  --shadow-md: 0 4px 14px rgba(16, 40, 30, 0.08), 0 1px 3px rgba(16, 40, 30, 0.05);
-  --shadow-lg: 0 12px 34px rgba(16, 40, 30, 0.12), 0 4px 10px rgba(16, 40, 30, 0.06);
+  /* Elevation — soft, layered, faint teal-cool tint */
+  --shadow-sm: 0 1px 2px rgba(11, 43, 34, 0.06), 0 1px 1px rgba(11, 43, 34, 0.04);
+  --shadow-md: 0 6px 18px rgba(11, 43, 34, 0.09), 0 2px 5px rgba(11, 43, 34, 0.06);
+  --shadow-lg: 0 18px 44px rgba(11, 43, 34, 0.14), 0 6px 14px rgba(11, 43, 34, 0.08);
+  --shadow-primary: 0 6px 16px rgba(12, 157, 118, 0.30);
 
   /* Radii */
-  --radius: 0.875rem;
+  --radius: 1rem;
+
+  /* Focus ring */
+  --ring: color-mix(in srgb, var(--primary) 45%, transparent);
 }
 
 .dark {
-  --background: #0b1411;
-  --surface: #111e19;
-  --surface-2: #182820;
-  --surface-3: #21362b;
-  --foreground: #e6efe9;
-  --muted: #a4b4ab;
-  --muted-2: #7a8a81;
-  --border: #223429;
-  --border-strong: #2f4638;
+  --background: #08120f;
+  --surface: #0f1c18;
+  --surface-2: #16241f;
+  --surface-3: #1f342c;
+  --foreground: #e8f1ec;
+  --muted: #a8b9b0;          /* lifted for contrast on dark */
+  --muted-2: #7f9088;
+  --border: #22352c;
+  --border-strong: #33493d;
 
-  --primary: #2ec88c;
-  --primary-strong: #55dca6;
-  --primary-contrast: #052018;
-  --primary-soft: #12281f;
+  --primary: #24cf9b;
+  --primary-strong: #55e0b3;
+  --primary-contrast: #04231a;
+  --primary-soft: #103127;
 
-  --pulse: #2fe0a6;
-  --pulse-soft: #102b22;
+  --pulse: #2fe6b4;
+  --pulse-soft: #0f2f26;
 
-  --emergency: #e8756b;
-  --emergency-soft: #2a1816;
-  --info: #6fa6df;
-  --info-soft: #14232f;
-  --warning: #e0b24e;
-  --warning-soft: #241d0e;
-  --success: #52c483;
-  --success-soft: #12271c;
-  --purple: #a78be0;
-  --purple-soft: #1e1830;
+  --emergency: #f2726f;
+  --emergency-soft: #2c1615;
+  --info: #6ba5f5;
+  --info-soft: #121f30;
+  --warning: #e6b64f;
+  --warning-soft: #241d0d;
+  --success: #45c983;
+  --success-soft: #10281d;
+  --purple: #b298ea;
+  --purple-soft: #1c1731;
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.45);
-  --shadow-lg: 0 14px 40px rgba(0, 0, 0, 0.55);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.45);
+  --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 18px 48px rgba(0, 0, 0, 0.6);
+  --shadow-primary: 0 6px 18px rgba(36, 207, 155, 0.28);
+
+  --ring: color-mix(in srgb, var(--primary) 55%, transparent);
 }
 
 @theme inline {
@@ -129,6 +137,7 @@
   --shadow-card: var(--shadow-sm);
   --shadow-pop: var(--shadow-md);
   --shadow-float: var(--shadow-lg);
+  --shadow-brand: var(--shadow-primary);
 }
 
 @layer base {
@@ -154,6 +163,11 @@
     letter-spacing: -0.02em;
     text-wrap: balance;
   }
+  /* Consistent, visible focus for keyboard users across the app */
+  :focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
 }
 
 /* Signature: pulsing ring for live / incoming states */
@@ -171,8 +185,26 @@
 }
 .gs-pulse-emergency { animation: gs-pulse-ring-emergency 1.3s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
 
+/* Gentle entrance for page content — premium, not flashy */
+@keyframes gs-rise {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.gs-rise { animation: gs-rise 0.35s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* Brand gradient for hero/keyline flourishes */
+.gs-brand-gradient {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--pulse) 100%);
+}
+.gs-brand-text {
+  background: linear-gradient(120deg, var(--primary-strong), var(--pulse));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .gs-pulse, .gs-pulse-emergency { animation: none; }
+  .gs-pulse, .gs-pulse-emergency, .gs-rise { animation: none; }
   * { scroll-behavior: auto !important; }
 }
 

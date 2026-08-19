@@ -187,7 +187,7 @@ export function NotesThread({
               if (e.key === "Enter" && !e.shiftKey) sendText(e);
             }}
             placeholder="Type a clinical note…"
-            className="max-h-28 flex-1 resize-none rounded-lg border border-border bg-surface-2/60 px-3.5 py-2.5 text-[15px] text-foreground outline-none focus:border-primary focus:bg-surface"
+            className="max-h-28 flex-1 resize-none rounded-xl border border-border-strong bg-surface px-3.5 py-2.5 text-[15px] text-foreground outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/25"
           />
         )}
 

@@ -16,7 +16,7 @@ export default async function ProgramLayout({
         roleLabel={ROLE_LABEL.program_manager}
       />
       <main id="main-content" className="flex-1 overflow-x-hidden">
-        <div className="mx-auto max-w-6xl px-5 py-6 sm:px-8">{children}</div>
+        <div className="gs-rise mx-auto max-w-6xl px-5 py-6 sm:px-8">{children}</div>
       </main>
     </div>
   );

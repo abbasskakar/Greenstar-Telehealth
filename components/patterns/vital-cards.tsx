@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import {
   type Vitals,
+  type VitalTone,
   bpTone,
   heartRateTone,
   temperatureTone,
@@ -17,6 +18,19 @@ import {
   toneClasses,
 } from "@/lib/vitals";
 import { cn } from "@/lib/utils";
+
+const chipClasses: Record<VitalTone, string> = {
+  normal: "bg-success-soft text-success",
+  borderline: "bg-warning-soft text-warning",
+  abnormal: "bg-emergency-soft text-emergency",
+  unknown: "bg-surface-2 text-muted",
+};
+const cardAccent: Record<VitalTone, string> = {
+  normal: "border-border",
+  borderline: "border-warning/40",
+  abnormal: "border-emergency/50 bg-emergency-soft/30",
+  unknown: "border-border",
+};
 
 export function VitalCards({ vitals }: { vitals: Vitals }) {
   const bp =
@@ -38,14 +52,19 @@ export function VitalCards({ vitals }: { vitals: Vitals }) {
       {items.map(({ label, value, unit, Icon, tone }) => (
         <div
           key={label}
-          className="rounded-xl border border-border bg-surface p-3.5 text-center shadow-card"
+          className={cn(
+            "rounded-2xl border bg-surface p-3.5 text-center shadow-card transition-colors",
+            cardAccent[tone],
+          )}
         >
-          <Icon size={18} className={cn("mx-auto mb-1.5", toneClasses[tone])} />
+          <span className={cn("mx-auto mb-2 flex h-9 w-9 items-center justify-center rounded-full", chipClasses[tone])}>
+            <Icon size={17} />
+          </span>
           <p className={cn("font-mono text-xl font-bold tabular-nums", toneClasses[tone])}>
             {value}
             {value !== "—" && <span className="ml-0.5 text-xs font-medium text-muted-2">{unit}</span>}
           </p>
-          <p className="mt-0.5 text-[11px] font-medium uppercase tracking-wide text-muted-2">
+          <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-wide text-muted-2">
             {label}
           </p>
         </div>

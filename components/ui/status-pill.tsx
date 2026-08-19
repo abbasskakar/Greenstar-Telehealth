@@ -10,12 +10,12 @@ type Tone =
   | "primary";
 
 const toneMap: Record<Tone, string> = {
-  emergency: "bg-emergency-soft text-emergency",
-  info: "bg-info-soft text-info",
-  warning: "bg-warning-soft text-warning",
-  success: "bg-success-soft text-success",
-  primary: "bg-primary-soft text-primary-strong dark:text-primary",
-  neutral: "bg-surface-2 text-muted",
+  emergency: "bg-emergency-soft text-emergency ring-1 ring-inset ring-emergency/20",
+  info: "bg-info-soft text-info ring-1 ring-inset ring-info/20",
+  warning: "bg-warning-soft text-warning ring-1 ring-inset ring-warning/20",
+  success: "bg-success-soft text-success ring-1 ring-inset ring-success/20",
+  primary: "bg-primary-soft text-primary-strong ring-1 ring-inset ring-primary/20 dark:text-primary",
+  neutral: "bg-surface-2 text-muted ring-1 ring-inset ring-border",
 };
 
 export function StatusPill({

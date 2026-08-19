@@ -312,7 +312,7 @@ export function NewAppointmentForm({
               placeholder="Briefly describe symptoms or history…"
               value={complaint}
               onChange={(e) => setComplaint(e.target.value)}
-              className="w-full rounded-lg border border-border bg-surface-2/60 px-3.5 py-3 text-[15px] text-foreground outline-none transition-colors focus:border-primary focus:bg-surface focus:ring-2 focus:ring-primary/15"
+              className="w-full rounded-xl border border-border-strong bg-surface px-3.5 py-3 text-[15px] text-foreground outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/25"
             />
           </div>
           {camps.length > 0 && (

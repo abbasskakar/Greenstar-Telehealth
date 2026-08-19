@@ -49,13 +49,14 @@ export function AppointmentCard({
   return (
     <Link href={href} className="block">
       <Card
+        interactive
         className={cn(
-          "overflow-hidden transition-colors hover:border-primary",
+          "overflow-hidden",
           emergency && "border-l-4 border-l-emergency",
         )}
       >
         {emergency && (
-          <div className="flex items-center gap-1.5 bg-emergency-soft px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-emergency">
+          <div className="flex items-center gap-1.5 bg-emergency-soft px-4 py-2 text-xs font-bold uppercase tracking-wide text-emergency">
             <AlertTriangle size={13} /> Emergency
           </div>
         )}

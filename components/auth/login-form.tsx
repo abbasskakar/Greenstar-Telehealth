@@ -99,7 +99,7 @@ export function LoginForm() {
         <ThemeToggle />
       </header>
 
-      <main className="relative z-10 mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-5 py-8">
+      <main className="gs-rise relative z-10 mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-5 py-8">
         <div className="mb-7 text-center">
           <h1 className="text-[28px] font-bold text-foreground">Welcome back</h1>
           <p className="mt-1.5 text-[15px] text-muted">
@@ -119,10 +119,10 @@ export function LoginForm() {
                   setError(null);
                 }}
                 className={cn(
-                  "relative flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-semibold transition-colors",
+                  "relative flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-semibold transition-all",
                   active
-                    ? "border-transparent bg-primary text-primary-contrast"
-                    : "border-border bg-surface text-muted hover:text-foreground",
+                    ? "border-transparent bg-primary text-primary-contrast shadow-brand"
+                    : "border-border-strong bg-surface text-muted hover:border-primary/40 hover:text-foreground",
                 )}
               >
                 {r.icon}
