@@ -1,16 +1,15 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, UserRound, AlertTriangle } from "lucide-react";
+import { ArrowLeft, UserRound, AlertTriangle, MessageSquare } from "lucide-react";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardBody } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { StatusPill } from "@/components/ui/status-pill";
 import { VitalCards } from "@/components/patterns/vital-cards";
-import { NotesThread, type Note } from "@/components/notes/notes-thread";
 import { ConsentCard } from "@/components/notes/consent-card";
 import { PrescriptionView, type Prescription } from "@/components/rx/prescription-view";
 import { LabBlock, type Lab } from "@/components/rx/lab-block";
-import { fetchAvatars } from "@/lib/avatars";
 import type { Vitals } from "@/lib/vitals";
 
 const statusMeta = {
@@ -27,7 +26,7 @@ export default async function ProviderAppointmentDetail({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const { user } = await requireRole("provider");
+  await requireRole("provider");
   const supabase = await createClient();
 
   const { data: appt } = await supabase
@@ -41,13 +40,8 @@ export default async function ProviderAppointmentDetail({
     .single();
   if (!appt) notFound();
 
-  const [{ data: notes }, { data: consent }, { data: rxList }, { data: labList }] =
+  const [{ data: consent }, { data: rxList }, { data: labList }] =
     await Promise.all([
-      supabase
-        .from("notes")
-        .select("*")
-        .eq("appointment_id", id)
-        .order("created_at", { ascending: true }),
       supabase
         .from("consents")
         .select("granted_by_name, created_at")
@@ -75,10 +69,6 @@ export default async function ProviderAppointmentDetail({
   } | null;
   const vitals = (appt.vitals as unknown as Vitals[])?.[0];
   const meta = statusMeta[appt.status as keyof typeof statusMeta];
-  const avatars = await fetchAvatars(
-    supabase,
-    (notes ?? []).map((n) => n.author_id),
-  );
 
   return (
     <div className="space-y-5">
@@ -145,15 +135,11 @@ export default async function ProviderAppointmentDetail({
         </div>
       )}
 
-      <div>
-        <h2 className="mb-3 text-lg font-bold text-foreground">Notes</h2>
-        <NotesThread
-          appointmentId={appt.id}
-          currentUserId={user.id}
-          initial={(notes ?? []) as Note[]}
-          avatars={avatars}
-        />
-      </div>
+      <Link href={`/provider/appointments/${appt.id}/chat`} className="block">
+        <Button variant="secondary" className="w-full">
+          <MessageSquare size={18} /> Open messages
+        </Button>
+      </Link>
     </div>
   );
 }

@@ -5,6 +5,7 @@ import {
   AlertTriangle,
   UserCheck,
   ChevronRight,
+  MessageSquare,
 } from "lucide-react";
 import { Card, CardBody } from "@/components/ui/card";
 import { Avatar } from "@/components/ui/avatar";
@@ -26,7 +27,8 @@ export function ProviderAppointmentCard({ appt }: { appt: AppointmentCardData })
   const meta = statusMeta[appt.status];
   const p = appt.patient;
   const v = appt.vitals?.[0];
-  const href = `/provider/appointments/${appt.id}`;
+  const detailsHref = `/provider/appointments/${appt.id}`;
+  const chatHref = `/provider/appointments/${appt.id}/chat`;
   const when = appt.created_at ? new Date(appt.created_at) : null;
   const dateStr = when
     ? when.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })
@@ -85,11 +87,17 @@ export function ProviderAppointmentCard({ appt }: { appt: AppointmentCardData })
 
       <div className="border-t border-border" />
 
-      {/* Action */}
-      <CardBody className="p-3">
+      {/* Actions */}
+      <CardBody className="grid grid-cols-2 gap-2 p-3">
         <Link
-          href={href}
-          className="inline-flex h-11 w-full items-center justify-center gap-1.5 rounded-xl bg-primary text-sm font-semibold text-primary-contrast shadow-brand transition-colors hover:bg-primary-strong"
+          href={chatHref}
+          className="inline-flex h-11 items-center justify-center gap-1.5 rounded-xl bg-surface-2 text-sm font-semibold text-foreground transition-colors hover:bg-surface-3"
+        >
+          <MessageSquare size={16} /> Message
+        </Link>
+        <Link
+          href={detailsHref}
+          className="inline-flex h-11 items-center justify-center gap-1.5 rounded-xl bg-primary text-sm font-semibold text-primary-contrast shadow-brand transition-colors hover:bg-primary-strong"
         >
           View details <ChevronRight size={16} />
         </Link>
