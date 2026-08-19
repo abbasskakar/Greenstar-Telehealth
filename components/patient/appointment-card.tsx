@@ -32,7 +32,8 @@ export function PatientAppointmentCard({
   const emergency = appt.type === "emergency";
   const meta = statusMeta[appt.status];
   const assigned = appt.assigned_doctor_name;
-  const href = `/patient/appointments/${appt.id}`;
+  const detailsHref = `/patient/appointments/${appt.id}`;
+  const chatHref = `/patient/appointments/${appt.id}/chat`;
   const when = appt.created_at ? new Date(appt.created_at) : null;
   const date = when
     ? when.toLocaleDateString(undefined, {
@@ -107,13 +108,13 @@ export function PatientAppointmentCard({
       {/* Actions */}
       <CardBody className="grid grid-cols-2 gap-2 p-3">
         <Link
-          href={href}
+          href={chatHref}
           className="inline-flex h-11 items-center justify-center gap-1.5 rounded-xl bg-surface-2 text-sm font-semibold text-foreground transition-colors hover:bg-surface-3"
         >
           <MessageSquare size={16} /> Message
         </Link>
         <Link
-          href={href}
+          href={detailsHref}
           className="inline-flex h-11 items-center justify-center gap-1.5 rounded-xl bg-primary text-sm font-semibold text-primary-contrast shadow-brand transition-colors hover:bg-primary-strong"
         >
           View details <ChevronRight size={16} />

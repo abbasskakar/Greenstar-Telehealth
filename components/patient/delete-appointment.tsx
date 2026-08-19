@@ -1,0 +1,55 @@
+"use client";
+
+import * as React from "react";
+import { useRouter } from "next/navigation";
+import { Trash2, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { deleteMyAppointment } from "@/app/patient/actions";
+
+export function DeleteAppointmentButton({ id }: { id: string }) {
+  const router = useRouter();
+  const [confirming, setConfirming] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+
+  async function remove() {
+    setLoading(true);
+    setError(null);
+    const res = await deleteMyAppointment(id);
+    setLoading(false);
+    if (!res.ok) {
+      setError(res.error ?? "Could not delete.");
+      setConfirming(false);
+    } else {
+      router.push("/patient/appointments");
+      router.refresh();
+    }
+  }
+
+  if (!confirming) {
+    return (
+      <div>
+        <Button variant="outline" className="w-full text-emergency" onClick={() => setConfirming(true)}>
+          <Trash2 size={18} /> Delete appointment
+        </Button>
+        {error && <p className="mt-2 text-sm font-medium text-emergency">{error}</p>}
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-xl border border-emergency/40 bg-emergency-soft p-4">
+      <p className="text-sm font-medium text-foreground">Delete this appointment permanently?</p>
+      <p className="mt-1 text-sm text-muted">This can’t be undone.</p>
+      <div className="mt-3 flex gap-2">
+        <Button variant="outline" className="flex-1" onClick={() => setConfirming(false)} disabled={loading}>
+          Keep it
+        </Button>
+        <Button className="flex-1 bg-emergency hover:bg-emergency" onClick={remove} disabled={loading}>
+          {loading ? <Loader2 size={18} className="animate-spin" /> : <Trash2 size={18} />}
+          {loading ? "Deleting…" : "Yes, delete"}
+        </Button>
+      </div>
+    </div>
+  );
+}

@@ -35,6 +35,59 @@ export async function cancelMyAppointment(id: string): Promise<Result> {
   return { ok: true };
 }
 
+/** Edit a still-pending request (specialty, concern, urgency). */
+export async function updateMyAppointment(
+  id: string,
+  patch: { specialty: string; chief_complaint: string; emergency?: boolean },
+): Promise<Result> {
+  const { profile } = await requireRole("public");
+  if (!patch.specialty?.trim()) return { ok: false, error: "Select a specialty." };
+  if ((patch.chief_complaint?.trim().length ?? 0) < 3)
+    return { ok: false, error: "Describe your concern." };
+
+  const supabase = await createClient();
+  const { data: appt } = await supabase
+    .from("appointments")
+    .select("status, created_by")
+    .eq("id", id)
+    .single();
+  if (!appt || appt.created_by !== profile.id)
+    return { ok: false, error: "Appointment not found." };
+  if (appt.status !== "pending")
+    return { ok: false, error: "Only pending requests can be edited." };
+
+  const { error } = await supabase
+    .from("appointments")
+    .update({
+      specialty: patch.specialty.trim(),
+      chief_complaint: patch.chief_complaint.trim(),
+      type: patch.emergency ? "emergency" : "regular",
+    })
+    .eq("id", id);
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/patient");
+  revalidatePath(`/patient/appointments/${id}`);
+  return { ok: true };
+}
+
+/** Permanently delete the patient's own appointment. */
+export async function deleteMyAppointment(id: string): Promise<Result> {
+  const { profile } = await requireRole("public");
+  const supabase = await createClient();
+  const { data: appt } = await supabase
+    .from("appointments")
+    .select("created_by")
+    .eq("id", id)
+    .single();
+  if (!appt || appt.created_by !== profile.id)
+    return { ok: false, error: "Appointment not found." };
+
+  const { error } = await supabase.from("appointments").delete().eq("id", id);
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/patient");
+  return { ok: true };
+}
+
 const profileSchema = z.object({
   full_name: z.string().trim().min(2, "Enter your name"),
   phone: z

@@ -43,11 +43,13 @@ export function NotesThread({
   currentUserId,
   initial,
   avatars = {},
+  header,
 }: {
   appointmentId: string;
   currentUserId: string;
   initial: Note[];
   avatars?: Record<string, string | null>;
+  header?: React.ReactNode;
 }) {
   const [notes, setNotes] = React.useState<Note[]>(initial);
   const [text, setText] = React.useState("");
@@ -151,8 +153,9 @@ export function NotesThread({
   }, [recording]);
 
   return (
-    <div className="flex flex-col rounded-2xl border border-border bg-surface shadow-card">
-      <div className="max-h-[420px] min-h-[160px] space-y-3 overflow-y-auto p-4">
+    <div className="flex flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-card">
+      {header && <div className="border-b border-border">{header}</div>}
+      <div className="max-h-[440px] min-h-[180px] space-y-3 overflow-y-auto p-4">
         {notes.length === 0 && (
           <p className="py-10 text-center text-sm text-muted">
             No notes yet. Start the conversation.
