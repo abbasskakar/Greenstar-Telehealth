@@ -72,8 +72,8 @@ export default async function PatientAppointmentChat({
   );
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
+    <div className="flex h-[calc(100dvh-10rem)] min-h-[420px] flex-col gap-3">
+      <div className="flex shrink-0 items-center justify-between">
         <Link
           href="/patient/appointments"
           className="inline-flex items-center gap-1.5 text-sm font-medium text-muted hover:text-foreground"
@@ -94,6 +94,7 @@ export default async function PatientAppointmentChat({
         initial={(notes ?? []) as Note[]}
         avatars={authorAvatars}
         header={chatHeader}
+        fullHeight
       />
     </div>
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Send, Mic, Square, Play, Loader2 } from "lucide-react";
+import { Send, Mic, X, Play, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { addTextNote, addVoiceNote } from "@/app/notes/actions";
 import { Avatar } from "@/components/ui/avatar";
@@ -44,12 +44,14 @@ export function NotesThread({
   initial,
   avatars = {},
   header,
+  fullHeight = false,
 }: {
   appointmentId: string;
   currentUserId: string;
   initial: Note[];
   avatars?: Record<string, string | null>;
   header?: React.ReactNode;
+  fullHeight?: boolean;
 }) {
   const [notes, setNotes] = React.useState<Note[]>(initial);
   const [text, setText] = React.useState("");
@@ -60,6 +62,7 @@ export function NotesThread({
   const bottomRef = React.useRef<HTMLDivElement>(null);
   const recRef = React.useRef<MediaRecorder | null>(null);
   const startRef = React.useRef(0);
+  const cancelRef = React.useRef(false);
 
   React.useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -120,6 +123,10 @@ export function NotesThread({
       rec.ondataavailable = (e) => e.data.size && chunks.push(e.data);
       rec.onstop = async () => {
         stream.getTracks().forEach((t) => t.stop());
+        if (cancelRef.current) {
+          cancelRef.current = false;
+          return; // discarded — don't upload
+        }
         const blob = new Blob(chunks, { type: "audio/webm" });
         const duration = (Date.now() - startRef.current) / 1000;
         setUploading(true);
@@ -141,8 +148,15 @@ export function NotesThread({
     }
   }
 
-  function stopRecording() {
-    recRef.current?.stop();
+  function sendRecording() {
+    cancelRef.current = false;
+    recRef.current?.stop(); // onstop uploads
+    setRecording(false);
+  }
+
+  function cancelRecording() {
+    cancelRef.current = true;
+    recRef.current?.stop(); // onstop discards
     setRecording(false);
   }
 
@@ -153,9 +167,19 @@ export function NotesThread({
   }, [recording]);
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-card">
-      {header && <div className="border-b border-border">{header}</div>}
-      <div className="max-h-[440px] min-h-[180px] space-y-3 overflow-y-auto p-4">
+    <div
+      className={cn(
+        "flex flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-card",
+        fullHeight && "min-h-0 flex-1",
+      )}
+    >
+      {header && <div className="shrink-0 border-b border-border">{header}</div>}
+      <div
+        className={cn(
+          "space-y-3 overflow-y-auto p-4",
+          fullHeight ? "min-h-0 flex-1" : "max-h-[440px] min-h-[180px]",
+        )}
+      >
         {notes.length === 0 && (
           <p className="py-10 text-center text-sm text-muted">
             No notes yet. Start the conversation.
@@ -182,7 +206,7 @@ export function NotesThread({
                     className="mt-5"
                   />
                 )}
-                <div className={cn("flex min-w-0 flex-col", mine ? "items-end" : "items-start")}>
+                <div className={cn("flex max-w-[78%] flex-col", mine ? "items-end" : "items-start")}>
                   <span className="mb-1.5 flex items-center gap-1.5 px-1 text-xs">
                     <span className="font-semibold text-foreground">
                       {mine ? "You" : n.author_name ?? "User"}
@@ -191,7 +215,7 @@ export function NotesThread({
                   </span>
                   <div
                     className={cn(
-                      "max-w-[88%] rounded-2xl px-3.5 py-2.5 text-[15px]",
+                      "w-fit max-w-full rounded-2xl px-3.5 py-2.5 text-[15px]",
                       mine
                         ? "rounded-br-sm bg-primary text-primary-contrast"
                         : "rounded-bl-sm bg-surface-2 text-foreground",
@@ -211,57 +235,67 @@ export function NotesThread({
         <div ref={bottomRef} />
       </div>
 
-      <form onSubmit={sendText} className="flex items-end gap-2 border-t border-border p-3">
+      <form onSubmit={sendText} className="flex shrink-0 items-end gap-2 border-t border-border p-3">
         {recording ? (
-          <div className="flex flex-1 items-center gap-2 rounded-lg bg-emergency-soft px-3.5 py-2.5 text-sm font-medium text-emergency">
-            <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-emergency" />
-            Recording… {Math.floor(elapsed / 60)}:{String(elapsed % 60).padStart(2, "0")}
-          </div>
+          <>
+            <button
+              type="button"
+              onClick={cancelRecording}
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-surface-2 text-emergency"
+              aria-label="Cancel recording"
+            >
+              <X size={20} />
+            </button>
+            <div className="flex flex-1 items-center gap-2 rounded-full bg-emergency-soft px-4 py-2.5 text-sm font-medium text-emergency">
+              <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-emergency" />
+              Recording… {Math.floor(elapsed / 60)}:{String(elapsed % 60).padStart(2, "0")}
+            </div>
+            <button
+              type="button"
+              onClick={sendRecording}
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-primary-contrast"
+              aria-label="Send voice note"
+            >
+              <Send size={18} />
+            </button>
+          </>
         ) : (
-          <textarea
-            rows={1}
-            value={text}
-            maxLength={1000}
-            onChange={(e) => setText(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) sendText(e);
-            }}
-            placeholder="Type a clinical note…"
-            className="max-h-28 flex-1 resize-none rounded-xl border border-border-strong bg-surface px-3.5 py-2.5 text-[15px] text-foreground outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/25"
-          />
-        )}
-
-        {uploading ? (
-          <button type="button" disabled className="flex h-11 w-11 items-center justify-center rounded-full bg-surface-2 text-muted">
-            <Loader2 size={20} className="animate-spin" />
-          </button>
-        ) : recording ? (
-          <button
-            type="button"
-            onClick={stopRecording}
-            className="flex h-11 w-11 items-center justify-center rounded-full bg-emergency text-white"
-            aria-label="Stop recording"
-          >
-            <Square size={18} />
-          </button>
-        ) : text.trim() ? (
-          <button
-            type="submit"
-            disabled={sending}
-            className="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-primary-contrast disabled:opacity-60"
-            aria-label="Send"
-          >
-            <Send size={18} />
-          </button>
-        ) : (
-          <button
-            type="button"
-            onClick={startRecording}
-            className="flex h-11 w-11 items-center justify-center rounded-full bg-surface-2 text-primary"
-            aria-label="Record voice note"
-          >
-            <Mic size={20} />
-          </button>
+          <>
+            <textarea
+              rows={1}
+              value={text}
+              maxLength={1000}
+              onChange={(e) => setText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) sendText(e);
+              }}
+              placeholder="Type a clinical note…"
+              className="max-h-28 flex-1 resize-none rounded-xl border border-border-strong bg-surface px-3.5 py-2.5 text-[15px] text-foreground outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/25"
+            />
+            {uploading ? (
+              <button type="button" disabled className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-surface-2 text-muted">
+                <Loader2 size={20} className="animate-spin" />
+              </button>
+            ) : text.trim() ? (
+              <button
+                type="submit"
+                disabled={sending}
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-primary-contrast disabled:opacity-60"
+                aria-label="Send"
+              >
+                <Send size={18} />
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={startRecording}
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-surface-2 text-primary"
+                aria-label="Record voice note"
+              >
+                <Mic size={20} />
+              </button>
+            )}
+          </>
         )}
       </form>
     </div>
