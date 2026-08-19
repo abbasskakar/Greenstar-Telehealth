@@ -67,7 +67,7 @@ export default async function DoctorHome({
       <DutyReminder initial={profile.duty} />
 
       <div className="space-y-3">
-        <div className="flex flex-wrap gap-2">
+        <div className="flex gap-1 rounded-full border border-border bg-surface p-1">
           {FILTERS.map((f) => {
             const active = f.key === filter;
             const params = new URLSearchParams();
@@ -79,10 +79,10 @@ export default async function DoctorHome({
                 key={f.key}
                 href={`/doctor${qs ? `?${qs}` : ""}`}
                 className={cn(
-                  "shrink-0 rounded-full px-3.5 py-1.5 text-sm font-semibold transition-colors",
+                  "flex-1 whitespace-nowrap rounded-full px-2 py-1.5 text-center text-[13px] font-semibold transition-colors",
                   active
-                    ? "bg-primary text-primary-contrast"
-                    : "bg-surface-2 text-muted hover:text-foreground",
+                    ? "bg-primary text-primary-contrast shadow-brand"
+                    : "text-muted hover:text-foreground",
                 )}
               >
                 {f.label}
