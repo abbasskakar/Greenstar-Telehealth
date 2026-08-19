@@ -126,9 +126,15 @@ export function NotificationList({
       const supabase = createClient();
       await supabase.from("notifications").update({ read_at: now }).eq("id", n.id);
     }
-    if (userRole === "doctor" && n.appointment_id) {
-      router.push(`/doctor/appointments/${n.appointment_id}`);
-    }
+    if (!n.appointment_id) return;
+    const base: Record<string, string> = {
+      doctor: `/doctor/appointments/${n.appointment_id}`,
+      provider: `/provider/appointments/${n.appointment_id}`,
+      public: `/patient/appointments/${n.appointment_id}`,
+      admin: `/admin/appointments`,
+    };
+    const dest = base[userRole];
+    if (dest) router.push(dest);
   }
 
   return (

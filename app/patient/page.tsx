@@ -63,7 +63,7 @@ export default async function PatientHome() {
         </div>
       )}
 
-      <div>
+      <div className="pt-2">
         <h2 className="mb-4 text-lg font-bold text-foreground">My Appointments</h2>
         {appts.length ? (
           <div className="space-y-4">
