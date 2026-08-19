@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, UserRound, AlertTriangle, MessageSquare } from "lucide-react";
+import { ArrowLeft, UserRound, AlertTriangle, MessageSquare, Pencil } from "lucide-react";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardBody } from "@/components/ui/card";
@@ -10,6 +10,7 @@ import { VitalCards } from "@/components/patterns/vital-cards";
 import { ConsentCard } from "@/components/notes/consent-card";
 import { PrescriptionView, type Prescription } from "@/components/rx/prescription-view";
 import { LabBlock, type Lab } from "@/components/rx/lab-block";
+import { ProviderDeleteAppointment } from "@/components/provider/delete-appointment";
 import type { Vitals } from "@/lib/vitals";
 
 const statusMeta = {
@@ -69,6 +70,7 @@ export default async function ProviderAppointmentDetail({
   } | null;
   const vitals = (appt.vitals as unknown as Vitals[])?.[0];
   const meta = statusMeta[appt.status as keyof typeof statusMeta];
+  const canEdit = appt.status === "pending";
 
   return (
     <div className="space-y-5">
@@ -140,6 +142,18 @@ export default async function ProviderAppointmentDetail({
           <MessageSquare size={18} /> Open messages
         </Button>
       </Link>
+
+      {/* Edit + Delete */}
+      <div className="space-y-2 border-t border-border pt-5">
+        {canEdit && (
+          <Link href={`/provider/appointments/${appt.id}/edit`} className="block">
+            <Button variant="outline" className="w-full">
+              <Pencil size={18} /> Edit appointment
+            </Button>
+          </Link>
+        )}
+        <ProviderDeleteAppointment id={appt.id} />
+      </div>
     </div>
   );
 }
