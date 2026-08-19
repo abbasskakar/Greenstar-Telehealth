@@ -2,11 +2,12 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { UserPlus, CheckCircle2, CalendarPlus, Loader2 } from "lucide-react";
+import { UserPlus, CheckCircle2, CalendarPlus, Loader2, IdCard, KeyRound } from "lucide-react";
 import { Card, CardBody } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
+import { formatCnic } from "@/lib/validation/cnic";
 import { addPatient } from "@/app/provider/patients/actions";
 
 export function AddPatientForm() {
@@ -16,9 +17,12 @@ export function AddPatientForm() {
   const [gender, setGender] = React.useState("");
   const [contact, setContact] = React.useState("");
   const [allergies, setAllergies] = React.useState("");
+  const [cnic, setCnic] = React.useState("");
+  const [password, setPassword] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [doneId, setDoneId] = React.useState<string | null>(null);
+  const [login, setLogin] = React.useState<{ cnic: string; password: string } | null>(null);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -30,10 +34,15 @@ export function AddPatientForm() {
       gender,
       contact,
       allergies,
+      cnic: cnic.trim() || undefined,
+      password: password.trim() || undefined,
     });
     setLoading(false);
     if (!res.ok) setError(res.error ?? "Could not save.");
-    else setDoneId(res.id ?? null);
+    else {
+      setDoneId(res.id ?? null);
+      setLogin(res.login ?? null);
+    }
   }
 
   if (doneId) {
@@ -47,6 +56,20 @@ export function AddPatientForm() {
           <p className="max-w-xs text-sm text-muted">
             {fullName} is now in your patient list. You can book an appointment for them anytime.
           </p>
+
+          {login && (
+            <div className="mt-1 w-full max-w-xs rounded-xl border border-primary/30 bg-primary-soft/40 p-4 text-left">
+              <p className="mb-2 flex items-center gap-1.5 text-sm font-bold text-primary">
+                <KeyRound size={15} /> Patient login created
+              </p>
+              <p className="text-xs text-muted">Share these so the patient can log in and book themselves:</p>
+              <div className="mt-2 space-y-1 font-mono text-sm text-foreground">
+                <p><span className="text-muted-2">CNIC: </span>{login.cnic}</p>
+                <p><span className="text-muted-2">Password: </span>{login.password}</p>
+              </div>
+            </div>
+          )}
+
           <div className="mt-1 flex w-full max-w-xs flex-col gap-2">
             <Button className="w-full" onClick={() => router.push("/provider/new")}>
               <CalendarPlus size={18} /> Book appointment
@@ -93,6 +116,37 @@ export function AddPatientForm() {
           <div>
             <Label htmlFor="allergies">Allergies (optional)</Label>
             <Input id="allergies" placeholder="e.g. Penicillin" value={allergies} onChange={(e) => setAllergies(e.target.value)} />
+          </div>
+
+          {/* Optional CNIC → gives the patient their own login */}
+          <div className="rounded-xl border border-border bg-surface-2/40 p-3.5">
+            <div>
+              <Label htmlFor="cnic">CNIC (optional)</Label>
+              <Input
+                id="cnic"
+                inputMode="numeric"
+                placeholder="12345-1234567-1"
+                value={cnic}
+                onChange={(e) => setCnic(formatCnic(e.target.value))}
+                icon={<IdCard size={18} />}
+              />
+              <p className="mt-1.5 text-xs text-muted">
+                Add a CNIC to create a login — the patient can then sign in and book appointments themselves.
+              </p>
+            </div>
+            {cnic.trim() && (
+              <div className="mt-3">
+                <Label htmlFor="pw">Password (optional)</Label>
+                <Input
+                  id="pw"
+                  type="text"
+                  placeholder="Leave blank to auto-generate"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  icon={<KeyRound size={18} />}
+                />
+              </div>
+            )}
           </div>
 
           {error && (
