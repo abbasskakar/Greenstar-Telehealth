@@ -31,23 +31,24 @@ export function DutyToggle({
       disabled={busy}
       role="switch"
       aria-checked={on}
+      aria-label={on ? "You are On Duty. Tap to go Off Duty." : "You are Off Duty. Tap to go On Duty."}
       className={cn(
-        "inline-flex items-center gap-2 rounded-full border px-2.5 py-1.5 text-xs font-semibold transition-colors disabled:opacity-60",
+        "inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-full border px-3 py-1.5 text-sm font-semibold transition-colors disabled:opacity-60",
         on
-          ? "border-transparent bg-success-soft text-success"
-          : "border-border bg-surface-2 text-muted",
+          ? "border-success/30 bg-success-soft text-success"
+          : "border-border-strong bg-surface-2 text-muted",
       )}
     >
       <span
         className={cn(
-          "relative h-4 w-7 rounded-full transition-colors",
+          "relative h-5 w-9 shrink-0 rounded-full transition-colors",
           on ? "bg-success" : "bg-border-strong",
         )}
       >
         <span
           className={cn(
-            "absolute top-0.5 h-3 w-3 rounded-full bg-white transition-all",
-            on ? "left-3.5" : "left-0.5",
+            "absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-all",
+            on ? "left-[1.125rem]" : "left-0.5",
           )}
         />
       </span>
