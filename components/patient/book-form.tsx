@@ -5,13 +5,24 @@ import { useRouter } from "next/navigation";
 import { CheckCircle2, CalendarPlus, AlertTriangle } from "lucide-react";
 import { Card, CardBody } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/input";
+import { Input, Label } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { SPECIALTIES } from "@/lib/constants/specialties";
 import { createPublicAppointment } from "@/app/patient/book/actions";
 
-export function BookForm() {
+export function BookForm({
+  initialName = "",
+  initialAge = null,
+  initialGender = "",
+}: {
+  initialName?: string;
+  initialAge?: number | null;
+  initialGender?: string;
+}) {
   const router = useRouter();
+  const [fullName, setFullName] = React.useState(initialName);
+  const [age, setAge] = React.useState(initialAge != null ? String(initialAge) : "");
+  const [gender, setGender] = React.useState(initialGender);
   const [specialty, setSpecialty] = React.useState<string>("General Medicine");
   const [complaint, setComplaint] = React.useState("");
   const [emergency, setEmergency] = React.useState(false);
@@ -23,7 +34,14 @@ export function BookForm() {
     e.preventDefault();
     setError(null);
     setLoading(true);
-    const res = await createPublicAppointment({ specialty, chief_complaint: complaint, emergency });
+    const res = await createPublicAppointment({
+      full_name: fullName,
+      age: age ? Number(age) : null,
+      gender,
+      specialty,
+      chief_complaint: complaint,
+      emergency,
+    });
     setLoading(false);
     if (!res.ok) setError(res.error ?? "Could not book.");
     else setDone(true);
@@ -49,6 +67,44 @@ export function BookForm() {
       <CardBody>
         <form onSubmit={submit} className="space-y-4">
           <div>
+            <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-muted-2">
+              Patient details
+            </h2>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="fullName">Full name</Label>
+                <Input
+                  id="fullName"
+                  placeholder="Patient name"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label htmlFor="age">Age</Label>
+                  <Input
+                    id="age"
+                    inputMode="numeric"
+                    placeholder="Years"
+                    value={age}
+                    onChange={(e) => setAge(e.target.value.replace(/\D/g, ""))}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="gender">Gender</Label>
+                  <Select id="gender" value={gender} onChange={(e) => setGender(e.target.value)}>
+                    <option value="">Select</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </Select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t border-border pt-4">
             <Label htmlFor="specialty">What do you need help with?</Label>
             <Select id="specialty" value={specialty} onChange={(e) => setSpecialty(e.target.value)}>
               {SPECIALTIES.map((s) => (
