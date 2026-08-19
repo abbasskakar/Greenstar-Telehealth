@@ -339,14 +339,16 @@ export function NewAppointmentForm({
             <Label>Blood Pressure (mmHg)</Label>
             <div className="flex items-center gap-2">
               <Input
+                className="min-w-0 flex-1"
                 inputMode="numeric"
                 placeholder="Systolic"
                 value={bpSys}
                 onChange={(e) => setBpSys(e.target.value.replace(/\D/g, ""))}
                 icon={<Activity size={18} />}
               />
-              <span className="text-muted-2">/</span>
+              <span className="shrink-0 text-muted-2">/</span>
               <Input
+                className="min-w-0 flex-1"
                 inputMode="numeric"
                 placeholder="Diastolic"
                 value={bpDia}
