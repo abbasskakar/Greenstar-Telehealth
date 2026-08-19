@@ -8,11 +8,19 @@ import {
   NotificationList,
   type Notif,
 } from "@/components/notifications/notification-list";
+import { BottomNav, type MobileVariant } from "@/components/layout/bottom-nav";
+
+const NAV_VARIANT: Record<string, MobileVariant> = {
+  provider: "provider",
+  doctor: "doctor",
+  public: "patient",
+};
 
 export default async function NotificationsPage() {
   const session = await getSessionProfile();
   if (!session?.profile) redirect("/login");
   const home = ROLE_HOME[session.profile.role];
+  const navVariant = NAV_VARIANT[session.profile.role];
 
   const supabase = await createClient();
   const { data } = await supabase
@@ -41,6 +49,7 @@ export default async function NotificationsPage() {
           initial={(data ?? []) as Notif[]}
         />
       </main>
+      {navVariant && <BottomNav variant={navVariant} />}
     </div>
   );
 }
