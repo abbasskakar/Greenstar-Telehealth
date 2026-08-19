@@ -200,9 +200,11 @@ export function LoginForm() {
           </p>
         )}
 
-        <p className="mt-8 text-center text-xs text-muted-2">
-          Staff accounts are created by your administrator.
-        </p>
+        {!isPatient && (
+          <p className="mt-8 text-center text-xs text-muted-2">
+            Staff accounts are created by your administrator.
+          </p>
+        )}
       </main>
     </div>
   );
