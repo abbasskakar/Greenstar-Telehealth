@@ -41,12 +41,16 @@ const NAVS: Record<MobileVariant, NavItem[]> = {
 export function BottomNav({ variant }: { variant: MobileVariant }) {
   const pathname = usePathname();
   const items = NAVS[variant];
+  // Active = the most specific matching item, so a root tab (e.g. "/patient")
+  // doesn't also light up on its sub-routes ("/patient/profile").
+  const activeHref = items
+    .filter((i) => pathname === i.href || pathname.startsWith(i.href + "/"))
+    .sort((a, b) => b.href.length - a.href.length)[0]?.href;
   return (
     <nav className="sticky bottom-0 z-30 border-t border-border bg-surface/95 backdrop-blur supports-[backdrop-filter]:bg-surface/80 pb-[env(safe-area-inset-bottom)] shadow-[0_-2px_10px_rgba(11,43,34,0.05)]">
       <ul className="mx-auto flex max-w-lg items-stretch justify-around">
         {items.map((item) => {
-          const active =
-            pathname === item.href || pathname.startsWith(item.href + "/");
+          const active = item.href === activeHref;
           const Icon = item.icon;
           return (
             <li key={item.href} className="flex-1">

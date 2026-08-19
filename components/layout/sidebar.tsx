@@ -55,6 +55,9 @@ export function Sidebar({
 }) {
   const pathname = usePathname();
   const items = NAVS[variant];
+  const activeHref = items
+    .filter((i) => pathname === i.href || pathname.startsWith(i.href + "/"))
+    .sort((a, b) => b.href.length - a.href.length)[0]?.href;
   return (
     <aside className="sticky top-0 flex h-dvh w-[264px] shrink-0 flex-col border-r border-border bg-surface px-4 py-5">
       <div className="flex items-center justify-between px-2">
@@ -65,8 +68,7 @@ export function Sidebar({
       <nav className="mt-8 flex-1">
         <ul className="space-y-1">
           {items.map((item) => {
-            const active =
-              pathname === item.href || pathname.startsWith(item.href + "/");
+            const active = item.href === activeHref;
             const Icon = item.icon;
             return (
               <li key={item.href}>
