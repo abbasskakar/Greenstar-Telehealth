@@ -173,17 +173,17 @@ export function NotesThread({
                   <span className="h-px flex-1 bg-border" />
                 </div>
               )}
-              <div className={cn("flex items-end gap-2", mine ? "flex-row-reverse" : "flex-row")}>
+              <div className={cn("flex items-start gap-2", mine ? "flex-row-reverse" : "flex-row")}>
                 {!mine && (
                   <Avatar
                     url={n.author_id ? avatars[n.author_id] : null}
                     name={n.author_name}
                     size={30}
-                    className="mb-6"
+                    className="mt-5"
                   />
                 )}
                 <div className={cn("flex min-w-0 flex-col", mine ? "items-end" : "items-start")}>
-                  <span className="mb-1 flex items-center gap-1.5 px-1 text-xs">
+                  <span className="mb-1.5 flex items-center gap-1.5 px-1 text-xs">
                     <span className="font-semibold text-foreground">
                       {mine ? "You" : n.author_name ?? "User"}
                     </span>
