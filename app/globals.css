@@ -131,8 +131,8 @@
   --font-mono: var(--font-mono), ui-monospace, monospace;
 
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 0.375rem);
-  --radius-2xl: calc(var(--radius) + 0.75rem);
+  --radius-xl: calc(var(--radius) + 0.125rem);
+  --radius-2xl: calc(var(--radius) + 0.25rem);
 
   --shadow-card: var(--shadow-sm);
   --shadow-pop: var(--shadow-md);

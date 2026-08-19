@@ -36,17 +36,17 @@ export default async function PatientHome() {
   const vitalSeries = (vitalsData ?? []) as unknown as Vitals[];
 
   return (
-    <div className="space-y-6">
-      <div>
+    <div className="space-y-7 pt-1">
+      <div className="space-y-1">
         <p className="text-sm font-medium text-muted">Welcome</p>
         <h1 className="text-2xl font-bold text-foreground">{firstName}</h1>
-        <p className="mt-1 text-[15px] text-muted">Here is your care overview.</p>
+        <p className="text-[15px] text-muted">Here is your care overview.</p>
       </div>
 
       <Link href="/patient/book">
         <Card interactive>
-          <CardBody className="flex items-center gap-3">
-            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary text-primary-contrast">
+          <CardBody className="flex items-center gap-3.5 py-4">
+            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-contrast shadow-brand">
               <Plus size={22} />
             </span>
             <span className="text-[15px] font-semibold text-foreground">Book an appointment</span>
@@ -64,9 +64,9 @@ export default async function PatientHome() {
       )}
 
       <div>
-        <h2 className="mb-3 text-lg font-bold text-foreground">My Appointments</h2>
+        <h2 className="mb-4 text-lg font-bold text-foreground">My Appointments</h2>
         {appts.length ? (
-          <div className="space-y-3">
+          <div className="space-y-4">
             {appts.map((a) => (
               <AppointmentCard key={a.id} appt={a} href={`/patient/appointments/${a.id}`} />
             ))}
