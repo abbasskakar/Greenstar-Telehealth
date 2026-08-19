@@ -12,7 +12,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, icon, trailing, ...props }, ref) => (
     <div
       className={cn(
-        "flex h-12 items-center gap-2.5 rounded-xl border border-border-strong bg-surface px-3.5 transition-all focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/25",
+        "flex h-12 items-center gap-2.5 rounded-xl border border-border-strong bg-surface px-3.5 transition-[border-color,box-shadow] focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/25",
         className,
       )}
     >

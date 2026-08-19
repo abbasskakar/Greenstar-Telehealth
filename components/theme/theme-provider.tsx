@@ -10,32 +10,22 @@ const Ctx = React.createContext<ThemeContext | null>(null);
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = React.useState<Theme>("light");
 
+  // On mount, adopt the theme the pre-hydration script already applied to
+  // <html> (from localStorage / system) in a single pass — no light→dark flash.
   React.useEffect(() => {
     const stored = localStorage.getItem("gs-theme") as Theme | null;
     const initial =
       stored ??
-      (window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light");
+      (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
     setThemeState(initial);
+    document.documentElement.classList.toggle("dark", initial === "dark");
   }, []);
 
-  const apply = React.useCallback((t: Theme) => {
+  const setTheme = React.useCallback((t: Theme) => {
+    setThemeState(t);
     document.documentElement.classList.toggle("dark", t === "dark");
     localStorage.setItem("gs-theme", t);
   }, []);
-
-  const setTheme = React.useCallback(
-    (t: Theme) => {
-      setThemeState(t);
-      apply(t);
-    },
-    [apply],
-  );
-
-  React.useEffect(() => {
-    apply(theme);
-  }, [theme, apply]);
 
   const value = React.useMemo(
     () => ({ theme, setTheme, toggle: () => setTheme(theme === "dark" ? "light" : "dark") }),

@@ -168,6 +168,16 @@
     outline: 2px solid var(--primary);
     outline-offset: 2px;
   }
+  /* Browser autofill must respect the theme (Chrome forces a light bg otherwise) */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-text-fill-color: var(--foreground);
+    -webkit-box-shadow: 0 0 0 1000px var(--surface) inset;
+    caret-color: var(--foreground);
+    transition: background-color 9999s ease-in-out 0s;
+  }
 }
 
 /* Signature: pulsing ring for live / incoming states */
