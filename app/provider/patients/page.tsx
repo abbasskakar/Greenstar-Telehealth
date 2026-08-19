@@ -26,9 +26,9 @@ export default async function ProviderPatients() {
             {patients.length} registered
           </p>
         </div>
-        <Link href="/provider/new">
+        <Link href="/provider/patients/new">
           <Button size="sm">
-            <Plus size={18} /> New
+            <Plus size={18} /> Add patient
           </Button>
         </Link>
       </div>
@@ -43,7 +43,7 @@ export default async function ProviderPatients() {
             </span>
             <p className="text-[15px] font-medium text-foreground">No patients yet</p>
             <p className="max-w-xs text-sm text-muted">
-              Register your first patient when creating an appointment.
+              Tap <span className="font-semibold text-foreground">Add patient</span> to register your first one.
             </p>
           </CardBody>
         </Card>
