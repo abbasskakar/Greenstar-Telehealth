@@ -98,7 +98,7 @@ export function PatientProfileEditor({
       <h1 className="text-2xl font-bold text-foreground">Profile</h1>
 
       <Card className="overflow-hidden">
-        <div className="gs-brand-gradient h-24" />
+        <div className="gs-brand-gradient h-32" />
         <CardBody className="space-y-5 pt-0">
           {/* Identity — centered */}
           <div className="flex flex-col items-center text-center">
