@@ -79,7 +79,7 @@ export default async function ProgramCamps() {
             const meta = campMeta(c.type);
             return (
               <Link key={c.id} href={`/program/camps/${c.id}`} className="block">
-                <Card className="h-full transition-colors hover:border-primary">
+                <Card interactive className="h-full">
                   <CardBody className="space-y-2.5">
                     <div className="flex items-center justify-between">
                       <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${CAMP_TONE[c.type]}`}>

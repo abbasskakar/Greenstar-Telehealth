@@ -55,7 +55,7 @@ export default async function ProgramHome() {
       <div className="grid gap-3 sm:grid-cols-3">
         {links.map((l) => (
           <Link key={l.href} href={l.href}>
-            <Card className="h-full transition-colors hover:border-primary">
+            <Card interactive className="h-full">
               <CardBody className="flex items-start justify-between gap-2">
                 <div>
                   <span className="mb-2 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-surface-2 text-primary">

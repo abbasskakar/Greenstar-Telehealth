@@ -38,7 +38,7 @@ export function PatientList({ patients }: { patients: PatientRow[] }) {
         <div className="space-y-2.5">
           {filtered.map((p) => (
             <Link key={p.id} href={`/provider/patients/${p.id}`} className="block">
-              <Card className="transition-colors hover:border-primary">
+              <Card interactive>
                 <CardBody className="flex items-center gap-3 py-3.5">
                   <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary-soft text-primary">
                     <UserRound size={20} />

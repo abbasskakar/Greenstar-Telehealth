@@ -44,7 +44,7 @@ export default async function PatientHome() {
       </div>
 
       <Link href="/patient/book">
-        <Card className="transition-colors hover:border-primary">
+        <Card interactive>
           <CardBody className="flex items-center gap-3">
             <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary text-primary-contrast">
               <Plus size={22} />

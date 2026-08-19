@@ -46,7 +46,7 @@ export default async function ProviderHome() {
 
       <div className="grid grid-cols-2 gap-3">
         <Link href="/provider/new">
-          <Card className="h-full transition-colors hover:border-primary">
+          <Card interactive className="h-full">
             <CardBody className="flex flex-col gap-3">
               <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary text-primary-contrast">
                 <Plus size={22} />
@@ -56,7 +56,7 @@ export default async function ProviderHome() {
           </Card>
         </Link>
         <Link href="/provider/patients">
-          <Card className="h-full transition-colors hover:border-primary">
+          <Card interactive className="h-full">
             <CardBody className="flex flex-col gap-3">
               <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-surface-2 text-primary">
                 <Users size={22} />

@@ -56,7 +56,7 @@ export function UsersTable({ users, currentUserId }: { users: UserRow[]; current
         </thead>
         <tbody>
           {users.map((u) => (
-            <tr key={u.id} className="border-b border-border last:border-0">
+            <tr key={u.id} className="border-b border-border transition-colors last:border-0 hover:bg-surface-2/50">
               <td className="px-5 py-3.5">
                 <span className="font-medium text-foreground">
                   {u.full_name || "—"}
@@ -81,7 +81,7 @@ export function UsersTable({ users, currentUserId }: { users: UserRow[]; current
                   <div className="flex items-center justify-end gap-2">
                     <button
                       onClick={() => reset(u)}
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs font-semibold text-muted transition-colors hover:text-primary"
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-border-strong bg-surface px-2.5 py-1.5 text-xs font-semibold text-muted transition-colors hover:border-primary/50 hover:text-primary"
                     >
                       <KeyRound size={14} /> Reset PW
                     </button>
@@ -89,10 +89,10 @@ export function UsersTable({ users, currentUserId }: { users: UserRow[]; current
                       onClick={() => toggle(u)}
                       disabled={busy === u.id}
                       className={cn(
-                        "inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs font-semibold transition-colors disabled:opacity-50",
+                        "inline-flex items-center gap-1.5 rounded-lg border border-border-strong bg-surface px-2.5 py-1.5 text-xs font-semibold transition-colors disabled:opacity-50",
                         u.is_active
-                          ? "text-muted hover:text-emergency"
-                          : "text-muted hover:text-success",
+                          ? "text-muted hover:border-emergency/50 hover:text-emergency"
+                          : "text-muted hover:border-success/50 hover:text-success",
                       )}
                     >
                       {u.is_active ? <PowerOff size={14} /> : <Power size={14} />}

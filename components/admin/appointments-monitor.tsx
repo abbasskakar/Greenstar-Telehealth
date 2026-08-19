@@ -49,7 +49,7 @@ export function AppointmentsMonitor({ rows }: { rows: MonitorRow[] }) {
         </thead>
         <tbody>
           {rows.map((r) => (
-            <tr key={r.id} className="border-b border-border last:border-0">
+            <tr key={r.id} className="border-b border-border transition-colors last:border-0 hover:bg-surface-2/50">
               <td className="px-5 py-3.5 font-medium text-foreground">
                 {r.patient?.full_name ?? "—"}
               </td>
@@ -76,7 +76,7 @@ export function AppointmentsMonitor({ rows }: { rows: MonitorRow[] }) {
                   <button
                     onClick={() => remove(r.id)}
                     disabled={busy === r.id}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs font-semibold text-muted transition-colors hover:text-emergency disabled:opacity-50"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-border-strong bg-surface px-2.5 py-1.5 text-xs font-semibold text-muted transition-colors hover:border-emergency/50 hover:text-emergency disabled:opacity-50"
                   >
                     <Trash2 size={14} /> Delete
                   </button>
