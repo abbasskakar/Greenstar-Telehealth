@@ -108,14 +108,14 @@ export function AvatarUploader({
   return (
     <div ref={wrapRef} className={cn("relative flex flex-col items-center", className)}>
       <div className="relative">
-        <span className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border-4 border-surface bg-primary text-primary-contrast shadow-pop">
+        <span className="flex h-40 w-40 items-center justify-center overflow-hidden rounded-full border-4 border-surface bg-primary text-primary-contrast shadow-pop">
           {busy ? (
-            <Loader2 size={32} className="animate-spin" />
+            <Loader2 size={36} className="animate-spin" />
           ) : url ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={url} alt="Profile" className="h-full w-full object-cover" />
           ) : (
-            <UserRound size={52} />
+            <UserRound size={64} />
           )}
         </span>
 
@@ -124,7 +124,7 @@ export function AvatarUploader({
           onClick={() => setMenuOpen((o) => !o)}
           disabled={busy}
           aria-label="Edit photo"
-          className="absolute bottom-1 right-1 flex h-10 w-10 items-center justify-center rounded-full border-2 border-surface bg-primary text-primary-contrast shadow-pop transition-transform active:scale-95 disabled:opacity-60"
+          className="absolute bottom-1.5 right-1.5 flex h-10 w-10 items-center justify-center rounded-full border-2 border-surface bg-primary text-primary-contrast shadow-pop transition-transform active:scale-95 disabled:opacity-60"
         >
           <Camera size={18} />
         </button>
