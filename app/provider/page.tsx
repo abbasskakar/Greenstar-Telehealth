@@ -6,8 +6,7 @@ import { Card, CardBody } from "@/components/ui/card";
 import { DutyHeartbeat } from "@/components/duty/duty-heartbeat";
 import { DutyToggle } from "@/components/duty/duty-toggle";
 import { DutyReminder } from "@/components/duty/duty-reminder";
-import { type AppointmentCardData } from "@/components/patterns/appointment-card";
-import { ProviderAppointmentCard } from "@/components/provider/appointment-card";
+import { AppointmentCard, type AppointmentCardData } from "@/components/patterns/appointment-card";
 
 type Row = AppointmentCardData & { patient_id: string };
 
@@ -75,7 +74,7 @@ export default async function ProviderHome() {
         {appts.length ? (
           <div className="space-y-3">
             {appts.map((a) => (
-              <ProviderAppointmentCard key={a.id} appt={a} />
+              <AppointmentCard key={a.id} appt={a} basePath="/provider/appointments" view="staff" showVitals />
             ))}
           </div>
         ) : (

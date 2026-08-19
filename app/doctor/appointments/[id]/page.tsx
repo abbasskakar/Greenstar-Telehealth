@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Phone, AlertTriangle, ShieldAlert } from "lucide-react";
+import { ArrowLeft, Phone, AlertTriangle, ShieldAlert, MessageSquare, Activity } from "lucide-react";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardBody } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/ui/avatar";
 import { StatusPill } from "@/components/ui/status-pill";
 import { VitalCards } from "@/components/patterns/vital-cards";
@@ -77,9 +78,9 @@ export default async function DoctorAppointmentDetail({
         </div>
       )}
 
-      {/* Patient */}
+      {/* One clinical card: patient + complaint + vitals */}
       <Card>
-        <CardBody className="space-y-3">
+        <CardBody className="space-y-4">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3">
               <Avatar name={p?.full_name} size={56} />
@@ -88,46 +89,48 @@ export default async function DoctorAppointmentDetail({
                 <p className="text-sm text-muted">
                   {[p?.age != null ? `${p.age} yrs` : null, p?.gender, appt.specialty].filter(Boolean).join(" · ")}
                 </p>
+                {p?.contact && (
+                  <p className="mt-0.5 flex items-center gap-1.5 text-sm text-muted">
+                    <Phone size={13} /> {p.contact}
+                  </p>
+                )}
               </div>
             </div>
             <StatusPill tone={meta.tone}>{meta.label}</StatusPill>
           </div>
-          {p?.contact && (
-            <p className="flex items-center gap-1.5 text-sm text-muted">
-              <Phone size={14} /> {p.contact}
-            </p>
-          )}
+
           {p?.allergies && (
             <p className="flex items-center gap-1.5 rounded-lg bg-emergency-soft px-3 py-2 text-sm font-medium text-emergency">
               <ShieldAlert size={15} /> Allergies: {p.allergies}
             </p>
           )}
+
+          {appt.chief_complaint && (
+            <div className="border-t border-border pt-4">
+              <p className="mb-1 text-xs font-bold uppercase tracking-wide text-muted-2">Chief complaint</p>
+              <p className="text-[15px] text-foreground">{appt.chief_complaint}</p>
+            </div>
+          )}
+
+          <div className="border-t border-border pt-4">
+            <p className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-muted-2">
+              <Activity size={14} /> Vitals
+            </p>
+            {vitals ? (
+              <VitalCards vitals={vitals} />
+            ) : (
+              <p className="text-sm text-muted">No vitals were recorded for this appointment.</p>
+            )}
+          </div>
         </CardBody>
       </Card>
 
-      {/* Chief complaint */}
-      {appt.chief_complaint && (
-        <div>
-          <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-muted-2">Chief complaint</h2>
-          <Card>
-            <CardBody className="text-[15px] text-foreground">{appt.chief_complaint}</CardBody>
-          </Card>
-        </div>
-      )}
-
-      {/* Vitals */}
-      <div>
-        <h2 className="mb-3 text-lg font-bold text-foreground">Vitals</h2>
-        {vitals ? (
-          <VitalCards vitals={vitals} />
-        ) : (
-          <Card>
-            <CardBody className="py-6 text-center text-sm text-muted">
-              No vitals were recorded for this appointment.
-            </CardBody>
-          </Card>
-        )}
-      </div>
+      {/* Messages shortcut */}
+      <Link href={`/doctor/appointments/${appt.id}/chat`} className="block">
+        <Button variant="secondary" className="w-full">
+          <MessageSquare size={18} /> Open messages
+        </Button>
+      </Link>
 
       <ConsentCard appointmentId={appt.id} patientId={appt.patient_id} existing={consent ?? null} />
 
@@ -147,7 +150,7 @@ export default async function DoctorAppointmentDetail({
       </div>
 
       {/* Actions */}
-      <div className="sticky bottom-4 pt-2">
+      <div className="pt-2">
         <AppointmentActions
           id={appt.id}
           status={appt.status}

@@ -4,8 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Card, CardBody } from "@/components/ui/card";
 import { DutyToggle } from "@/components/duty/duty-toggle";
 import { DutyHeartbeat } from "@/components/duty/duty-heartbeat";
-import { type AppointmentCardData } from "@/components/patterns/appointment-card";
-import { DoctorAppointmentCard } from "@/components/doctor/appointment-card";
+import { AppointmentCard, type AppointmentCardData } from "@/components/patterns/appointment-card";
 
 type Row = AppointmentCardData & {
   claimed_at: string | null;
@@ -95,7 +94,7 @@ export default async function DoctorSchedule() {
         {active.length ? (
           <div className="space-y-3">
             {active.map((a) => (
-              <DoctorAppointmentCard key={a.id} appt={a} />
+              <AppointmentCard key={a.id} appt={a} basePath="/doctor/appointments" view="staff" showVitals />
             ))}
           </div>
         ) : (
@@ -120,7 +119,7 @@ export default async function DoctorSchedule() {
           </h2>
           <div className="space-y-3">
             {completed.slice(0, 20).map((a) => (
-              <DoctorAppointmentCard key={a.id} appt={a} />
+              <AppointmentCard key={a.id} appt={a} basePath="/doctor/appointments" view="staff" showVitals />
             ))}
           </div>
         </section>

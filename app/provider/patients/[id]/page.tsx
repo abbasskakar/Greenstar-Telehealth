@@ -7,8 +7,7 @@ import { Card, CardBody } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { VitalCards } from "@/components/patterns/vital-cards";
 import { VitalTrends } from "@/components/patterns/vital-trends";
-import { type AppointmentCardData } from "@/components/patterns/appointment-card";
-import { ProviderAppointmentCard } from "@/components/provider/appointment-card";
+import { AppointmentCard, type AppointmentCardData } from "@/components/patterns/appointment-card";
 import type { Vitals } from "@/lib/vitals";
 
 export default async function PatientProfile({
@@ -102,7 +101,7 @@ export default async function PatientProfile({
         </div>
         <div className="space-y-3">
           {appointments.map((a) => (
-            <ProviderAppointmentCard key={a.id} appt={a} />
+            <AppointmentCard key={a.id} appt={a} basePath="/provider/appointments" view="staff" showVitals />
           ))}
         </div>
       </div>

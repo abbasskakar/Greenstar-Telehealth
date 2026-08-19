@@ -3,8 +3,7 @@ import { Plus, CalendarHeart, Activity } from "lucide-react";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardBody } from "@/components/ui/card";
-import { type AppointmentCardData } from "@/components/patterns/appointment-card";
-import { PatientAppointmentCard } from "@/components/patient/appointment-card";
+import { AppointmentCard, type AppointmentCardData } from "@/components/patterns/appointment-card";
 import { VitalTrends } from "@/components/patterns/vital-trends";
 import { fetchAvatars } from "@/lib/avatars";
 import type { Vitals } from "@/lib/vitals";
@@ -73,9 +72,11 @@ export default async function PatientHome() {
         {rows.length ? (
           <div className="space-y-4">
             {rows.map((a) => (
-              <PatientAppointmentCard
+              <AppointmentCard
                 key={a.id}
                 appt={a}
+                basePath="/patient/appointments"
+                view="patient"
                 doctorAvatar={a.assigned_doctor_id ? doctorAvatars[a.assigned_doctor_id] : null}
               />
             ))}

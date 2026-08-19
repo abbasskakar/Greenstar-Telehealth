@@ -3,8 +3,7 @@ import { Inbox } from "lucide-react";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardBody } from "@/components/ui/card";
-import { type AppointmentCardData } from "@/components/patterns/appointment-card";
-import { DoctorAppointmentCard } from "@/components/doctor/appointment-card";
+import { AppointmentCard, type AppointmentCardData } from "@/components/patterns/appointment-card";
 import { RealtimeRefresh } from "@/components/notifications/realtime-refresh";
 import { DutyToggle } from "@/components/duty/duty-toggle";
 import { DutyHeartbeat } from "@/components/duty/duty-heartbeat";
@@ -97,7 +96,7 @@ export default async function DoctorHome({
       {appts.length ? (
         <div className="space-y-3">
           {appts.map((a) => (
-            <DoctorAppointmentCard key={a.id} appt={a} />
+            <AppointmentCard key={a.id} appt={a} basePath="/doctor/appointments" view="staff" showVitals />
           ))}
         </div>
       ) : (

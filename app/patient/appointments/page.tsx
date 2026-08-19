@@ -4,8 +4,7 @@ import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
-import { type AppointmentCardData } from "@/components/patterns/appointment-card";
-import { PatientAppointmentCard } from "@/components/patient/appointment-card";
+import { AppointmentCard, type AppointmentCardData } from "@/components/patterns/appointment-card";
 import { fetchAvatars } from "@/lib/avatars";
 
 export default async function PatientAppointments() {
@@ -37,9 +36,11 @@ export default async function PatientAppointments() {
       {rows.length ? (
         <div className="space-y-4">
           {rows.map((a) => (
-            <PatientAppointmentCard
+            <AppointmentCard
               key={a.id}
               appt={a}
+              basePath="/patient/appointments"
+              view="patient"
               doctorAvatar={a.assigned_doctor_id ? doctorAvatars[a.assigned_doctor_id] : null}
             />
           ))}
