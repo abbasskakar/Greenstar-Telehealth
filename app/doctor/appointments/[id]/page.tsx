@@ -81,12 +81,15 @@ export default async function DoctorAppointmentDetail({
       {/* One clinical card: patient + complaint + vitals */}
       <Card>
         <CardBody className="space-y-4">
-          <div className="flex items-start justify-between gap-3">
+          <div>
+            <div className="mb-3 flex justify-end">
+              <StatusPill tone={meta.tone}>{meta.label}</StatusPill>
+            </div>
             <div className="flex items-center gap-3">
               <Avatar name={p?.full_name} size={56} />
-              <div className="min-w-0">
-                <h1 className="text-xl font-bold text-foreground">{p?.full_name ?? "Unknown patient"}</h1>
-                <p className="text-sm text-muted">
+              <div className="min-w-0 flex-1">
+                <h1 className="truncate text-xl font-bold text-foreground">{p?.full_name ?? "Unknown patient"}</h1>
+                <p className="truncate text-sm text-muted">
                   {[p?.age != null ? `${p.age} yrs` : null, p?.gender, appt.specialty].filter(Boolean).join(" · ")}
                 </p>
                 {p?.contact && (
@@ -96,7 +99,6 @@ export default async function DoctorAppointmentDetail({
                 )}
               </div>
             </div>
-            <StatusPill tone={meta.tone}>{meta.label}</StatusPill>
           </div>
 
           {p?.allergies && (
