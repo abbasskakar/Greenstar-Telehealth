@@ -1,18 +1,17 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, UserRound, Phone, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Phone, AlertTriangle, ShieldAlert } from "lucide-react";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardBody } from "@/components/ui/card";
+import { Avatar } from "@/components/ui/avatar";
 import { StatusPill } from "@/components/ui/status-pill";
 import { VitalCards } from "@/components/patterns/vital-cards";
 import { AppointmentActions } from "@/components/doctor/appointment-actions";
-import { NotesThread, type Note } from "@/components/notes/notes-thread";
 import { ConsentCard } from "@/components/notes/consent-card";
 import { PrescriptionView, type Prescription } from "@/components/rx/prescription-view";
 import { PrescriptionForm } from "@/components/rx/prescription-form";
 import { LabBlock, type Lab } from "@/components/rx/lab-block";
-import { fetchAvatars } from "@/lib/avatars";
 import type { Vitals } from "@/lib/vitals";
 
 const statusMeta = {
@@ -29,7 +28,7 @@ export default async function DoctorAppointmentDetail({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const { user } = await requireRole("doctor");
+  await requireRole("doctor");
   const supabase = await createClient();
 
   const { data: appt } = await supabase
@@ -41,34 +40,19 @@ export default async function DoctorAppointmentDetail({
     )
     .eq("id", id)
     .single();
-
   if (!appt) notFound();
 
-  const [{ data: notes }, { data: consent }, { data: rxList }, { data: labList }] =
-    await Promise.all([
-      supabase
-        .from("notes")
-        .select("*")
-        .eq("appointment_id", id)
-        .order("created_at", { ascending: true }),
-      supabase
-        .from("consents")
-        .select("granted_by_name, created_at")
-        .eq("appointment_id", id)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle(),
-      supabase
-        .from("prescriptions")
-        .select("*")
-        .eq("appointment_id", id)
-        .order("created_at", { ascending: false }),
-      supabase
-        .from("lab_requests")
-        .select("*")
-        .eq("appointment_id", id)
-        .order("created_at", { ascending: false }),
-    ]);
+  const [{ data: consent }, { data: rxList }, { data: labList }] = await Promise.all([
+    supabase
+      .from("consents")
+      .select("granted_by_name, created_at")
+      .eq("appointment_id", id)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    supabase.from("prescriptions").select("*").eq("appointment_id", id).order("created_at", { ascending: false }),
+    supabase.from("lab_requests").select("*").eq("appointment_id", id).order("created_at", { ascending: false }),
+  ]);
 
   const emergency = appt.type === "emergency";
   const p = appt.patient as unknown as {
@@ -80,17 +64,10 @@ export default async function DoctorAppointmentDetail({
   } | null;
   const vitals = (appt.vitals as unknown as Vitals[])?.[0];
   const meta = statusMeta[appt.status as keyof typeof statusMeta];
-  const avatars = await fetchAvatars(
-    supabase,
-    (notes ?? []).map((n) => n.author_id),
-  );
 
   return (
-    <div className="space-y-5">
-      <Link
-        href="/doctor"
-        className="inline-flex items-center gap-1.5 text-sm font-medium text-muted hover:text-foreground"
-      >
+    <div className="space-y-5 pb-4">
+      <Link href="/doctor" className="inline-flex items-center gap-1.5 text-sm font-medium text-muted hover:text-foreground">
         <ArrowLeft size={16} /> Queue
       </Link>
 
@@ -100,21 +77,16 @@ export default async function DoctorAppointmentDetail({
         </div>
       )}
 
+      {/* Patient */}
       <Card>
         <CardBody className="space-y-3">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3">
-              <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-primary-soft text-primary">
-                <UserRound size={26} />
-              </span>
+              <Avatar name={p?.full_name} size={56} />
               <div className="min-w-0">
-                <h1 className="text-xl font-bold text-foreground">
-                  {p?.full_name ?? "Unknown patient"}
-                </h1>
+                <h1 className="text-xl font-bold text-foreground">{p?.full_name ?? "Unknown patient"}</h1>
                 <p className="text-sm text-muted">
-                  {[p?.age != null ? `${p.age} yrs` : null, p?.gender, appt.specialty]
-                    .filter(Boolean)
-                    .join(" · ")}
+                  {[p?.age != null ? `${p.age} yrs` : null, p?.gender, appt.specialty].filter(Boolean).join(" · ")}
                 </p>
               </div>
             </div>
@@ -122,25 +94,28 @@ export default async function DoctorAppointmentDetail({
           </div>
           {p?.contact && (
             <p className="flex items-center gap-1.5 text-sm text-muted">
-              <Phone size={13} /> {p.contact}
+              <Phone size={14} /> {p.contact}
+            </p>
+          )}
+          {p?.allergies && (
+            <p className="flex items-center gap-1.5 rounded-lg bg-emergency-soft px-3 py-2 text-sm font-medium text-emergency">
+              <ShieldAlert size={15} /> Allergies: {p.allergies}
             </p>
           )}
         </CardBody>
       </Card>
 
+      {/* Chief complaint */}
       {appt.chief_complaint && (
         <div>
-          <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-muted-2">
-            Chief complaint
-          </h2>
+          <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-muted-2">Chief complaint</h2>
           <Card>
-            <CardBody className="text-[15px] text-foreground">
-              {appt.chief_complaint}
-            </CardBody>
+            <CardBody className="text-[15px] text-foreground">{appt.chief_complaint}</CardBody>
           </Card>
         </div>
       )}
 
+      {/* Vitals */}
       <div>
         <h2 className="mb-3 text-lg font-bold text-foreground">Vitals</h2>
         {vitals ? (
@@ -154,12 +129,9 @@ export default async function DoctorAppointmentDetail({
         )}
       </div>
 
-      <ConsentCard
-        appointmentId={appt.id}
-        patientId={appt.patient_id}
-        existing={consent ?? null}
-      />
+      <ConsentCard appointmentId={appt.id} patientId={appt.patient_id} existing={consent ?? null} />
 
+      {/* Prescription */}
       <div className="space-y-3">
         <h2 className="text-lg font-bold text-foreground">Prescription</h2>
         {(rxList ?? []).map((rx) => (
@@ -168,27 +140,14 @@ export default async function DoctorAppointmentDetail({
         <PrescriptionForm appointmentId={appt.id} allergies={p?.allergies} />
       </div>
 
+      {/* Labs */}
       <div className="space-y-3">
         <h2 className="text-lg font-bold text-foreground">Lab &amp; Diagnostics</h2>
-        <LabBlock
-          appointmentId={appt.id}
-          labs={(labList ?? []) as Lab[]}
-          canRequest
-          canUpload
-        />
+        <LabBlock appointmentId={appt.id} labs={(labList ?? []) as Lab[]} canRequest canUpload />
       </div>
 
-      <div>
-        <h2 className="mb-3 text-lg font-bold text-foreground">Notes</h2>
-        <NotesThread
-          appointmentId={appt.id}
-          currentUserId={user.id}
-          initial={(notes ?? []) as Note[]}
-          avatars={avatars}
-        />
-      </div>
-
-      <div className="sticky bottom-20 pt-2">
+      {/* Actions */}
+      <div className="sticky bottom-4 pt-2">
         <AppointmentActions
           id={appt.id}
           status={appt.status}
