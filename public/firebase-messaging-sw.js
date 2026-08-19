@@ -17,12 +17,19 @@ const messaging = firebase.messaging();
 messaging.onBackgroundMessage((payload) => {
   const n = payload.notification || {};
   const data = payload.data || {};
+  const urgent = data.type === "emergency" || data.type === "call";
   self.registration.showNotification(n.title || "Greenstar Telehealth", {
     body: n.body || "",
-    icon: "/icons/icon.svg",
-    badge: "/icons/icon.svg",
+    icon: "/icons/icon-192.png",
+    badge: "/icons/icon-192.png",
     tag: data.appointment_id || undefined,
+    renotify: Boolean(data.appointment_id),
+    requireInteraction: urgent,
+    silent: false,
+    vibrate: urgent ? [300, 150, 300, 150, 300] : [200, 100, 200],
+    timestamp: Date.now(),
     data,
+    actions: [{ action: "view", title: "View details" }],
   });
 });
 

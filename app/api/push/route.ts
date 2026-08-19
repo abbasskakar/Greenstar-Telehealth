@@ -79,7 +79,7 @@ export async function POST(req: Request) {
           },
           webpush: {
             fcmOptions: { link },
-            notification: { icon: "/icons/icon.svg" },
+            notification: { icon: "/icons/icon-192.png" },
           },
         });
         sent++;
