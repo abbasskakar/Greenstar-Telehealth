@@ -24,6 +24,20 @@ function clock(iso: string) {
   return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
 
+function sameDay(a: string, b: string) {
+  return new Date(a).toDateString() === new Date(b).toDateString();
+}
+
+function dayLabel(iso: string) {
+  const d = new Date(iso);
+  const today = new Date();
+  const yest = new Date();
+  yest.setDate(today.getDate() - 1);
+  if (d.toDateString() === today.toDateString()) return "Today";
+  if (d.toDateString() === yest.toDateString()) return "Yesterday";
+  return d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
+}
+
 export function NotesThread({
   appointmentId,
   currentUserId,
@@ -144,44 +158,51 @@ export function NotesThread({
             No notes yet. Start the conversation.
           </p>
         )}
-        {notes.map((n) => {
+        {notes.map((n, i) => {
           const mine = n.author_id === currentUserId;
+          const showDate = i === 0 || !sameDay(notes[i - 1].created_at, n.created_at);
           return (
-            <div
-              key={n.id}
-              className={cn("flex items-end gap-2", mine ? "flex-row-reverse" : "flex-row")}
-            >
-              {!mine && (
-                <Avatar
-                  url={n.author_id ? avatars[n.author_id] : null}
-                  name={n.author_name}
-                  size={30}
-                  className="mb-5"
-                />
-              )}
-              <div className={cn("flex min-w-0 flex-col", mine ? "items-end" : "items-start")}>
-                {!mine && n.author_name && (
-                  <span className="mb-1 px-1 text-xs font-semibold text-muted-2">
-                    {n.author_name}
-                  </span>
-                )}
-                <div
-                  className={cn(
-                    "max-w-[80%] rounded-2xl px-3.5 py-2.5 text-[15px]",
-                    mine
-                      ? "rounded-br-sm bg-primary text-primary-contrast"
-                      : "rounded-bl-sm bg-surface-2 text-foreground",
-                  )}
-                >
-                  {n.kind === "voice" ? (
-                    <VoicePlayer path={n.audio_path} duration={n.duration_sec} mine={mine} />
-                  ) : (
-                    <p className="whitespace-pre-wrap break-words">{n.body}</p>
-                  )}
+            <React.Fragment key={n.id}>
+              {showDate && (
+                <div className="my-1 flex items-center gap-3">
+                  <span className="h-px flex-1 bg-border" />
+                  <span className="text-xs font-medium text-muted-2">{dayLabel(n.created_at)}</span>
+                  <span className="h-px flex-1 bg-border" />
                 </div>
-                <span className="mt-1 px-1 text-[11px] text-muted-2">{clock(n.created_at)}</span>
+              )}
+              <div className={cn("flex items-end gap-2", mine ? "flex-row-reverse" : "flex-row")}>
+                {!mine && (
+                  <Avatar
+                    url={n.author_id ? avatars[n.author_id] : null}
+                    name={n.author_name}
+                    size={30}
+                    className="mb-6"
+                  />
+                )}
+                <div className={cn("flex min-w-0 flex-col", mine ? "items-end" : "items-start")}>
+                  <span className="mb-1 flex items-center gap-1.5 px-1 text-xs">
+                    <span className="font-semibold text-foreground">
+                      {mine ? "You" : n.author_name ?? "User"}
+                    </span>
+                    <span className="text-muted-2">{clock(n.created_at)}</span>
+                  </span>
+                  <div
+                    className={cn(
+                      "max-w-[88%] rounded-2xl px-3.5 py-2.5 text-[15px]",
+                      mine
+                        ? "rounded-br-sm bg-primary text-primary-contrast"
+                        : "rounded-bl-sm bg-surface-2 text-foreground",
+                    )}
+                  >
+                    {n.kind === "voice" ? (
+                      <VoicePlayer path={n.audio_path} duration={n.duration_sec} mine={mine} />
+                    ) : (
+                      <p className="whitespace-pre-wrap break-words">{n.body}</p>
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
+            </React.Fragment>
           );
         })}
         <div ref={bottomRef} />
