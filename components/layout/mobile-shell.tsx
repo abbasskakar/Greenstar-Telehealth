@@ -1,6 +1,7 @@
 import { TopBar } from "./top-bar";
 import { BottomNav, type MobileVariant } from "./bottom-nav";
 import { OnboardingTour } from "@/components/onboarding-tour";
+import { PushRegister } from "@/components/push-register";
 
 export function MobileShell({
   variant,
@@ -18,6 +19,7 @@ export function MobileShell({
       <BottomNav variant={variant} />
       {/* Field-worker setup tour for staff; patients get their own PatientTour. */}
       {variant !== "patient" && <OnboardingTour />}
+      <PushRegister />
     </div>
   );
 }

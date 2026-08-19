@@ -1,4 +1,5 @@
 import { Sidebar } from "@/components/layout/sidebar";
+import { PushRegister } from "@/components/push-register";
 import { requireRole } from "@/lib/auth/session";
 import { ROLE_LABEL } from "@/lib/auth/roles";
 
@@ -18,6 +19,7 @@ export default async function AdminLayout({
       <main id="main-content" className="flex-1 overflow-x-hidden">
         <div className="gs-rise mx-auto max-w-6xl px-5 py-6 sm:px-8">{children}</div>
       </main>
+      <PushRegister />
     </div>
   );
 }
