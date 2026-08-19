@@ -66,8 +66,8 @@ export default async function DoctorHome({
 
       <DutyReminder initial={profile.duty} />
 
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="no-scrollbar -mx-1 flex flex-1 gap-2 overflow-x-auto px-1 pb-1">
+      <div className="space-y-3">
+        <div className="flex flex-wrap gap-2">
           {FILTERS.map((f) => {
             const active = f.key === filter;
             const params = new URLSearchParams();
