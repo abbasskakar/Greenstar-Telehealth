@@ -1,19 +1,23 @@
-import { UserRound } from "lucide-react";
 import { Card, CardBody } from "@/components/ui/card";
 import { StatusPill } from "@/components/ui/status-pill";
 import { SignOutButton } from "@/components/layout/sign-out-button";
+import { AvatarUploader } from "@/components/patterns/avatar-uploader";
 import { ROLE_LABEL, type Role } from "@/lib/auth/roles";
 
 export function ProfileView({
+  userId,
   name,
   role,
   phone,
   specialty,
+  avatarUrl = null,
 }: {
+  userId: string;
   name: string;
   role: Role;
   phone?: string | null;
   specialty?: string | null;
+  avatarUrl?: string | null;
 }) {
   return (
     <div className="mx-auto max-w-lg space-y-5">
@@ -22,9 +26,9 @@ export function ProfileView({
       <Card className="overflow-hidden">
         <div className="gs-brand-gradient h-20" />
         <CardBody className="pt-0">
-          <span className="-mt-10 mb-3 flex h-20 w-20 items-center justify-center rounded-full border-4 border-surface bg-primary text-primary-contrast shadow-pop">
-            <UserRound size={34} />
-          </span>
+          <div className="-mt-14 mb-3 w-fit">
+            <AvatarUploader userId={userId} initialUrl={avatarUrl} />
+          </div>
           <p className="truncate text-xl font-bold text-foreground">{name}</p>
           <div className="mt-1.5 flex flex-wrap items-center gap-2">
             <StatusPill tone="primary" dot={false}>

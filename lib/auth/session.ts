@@ -13,6 +13,7 @@ export type Profile = {
   duty: "on_duty" | "off_duty";
   language: string;
   is_active: boolean;
+  avatar_url: string | null;
 };
 
 /** Current user + profile, memoized per request. Null if signed out. */

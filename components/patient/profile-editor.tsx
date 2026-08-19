@@ -16,14 +16,19 @@ import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
 import { StatusPill } from "@/components/ui/status-pill";
 import { SignOutButton } from "@/components/layout/sign-out-button";
+import { AvatarUploader } from "@/components/patterns/avatar-uploader";
 import { updateMyProfile, changeMyPassword } from "@/app/patient/actions";
 
 export function PatientProfileEditor({
+  userId,
   initialName,
   initialPhone,
+  initialAvatar = null,
 }: {
+  userId: string;
   initialName: string;
   initialPhone: string;
+  initialAvatar?: string | null;
 }) {
   const [name, setName] = React.useState(initialName);
   const [phone, setPhone] = React.useState(initialPhone);
@@ -97,9 +102,9 @@ export function PatientProfileEditor({
         <CardBody className="space-y-5 pt-0">
           {/* Identity */}
           <div>
-            <span className="-mt-10 mb-3 flex h-20 w-20 items-center justify-center rounded-full border-4 border-surface bg-primary text-primary-contrast shadow-pop">
-              <UserRound size={34} />
-            </span>
+            <div className="-mt-14 mb-3 w-fit">
+              <AvatarUploader userId={userId} initialUrl={initialAvatar} />
+            </div>
             <p className="truncate text-xl font-bold text-foreground">{name || "Patient"}</p>
             <div className="mt-1.5">
               <StatusPill tone="primary" dot={false}>
