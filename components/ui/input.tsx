@@ -19,7 +19,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       {icon && <span className="shrink-0 text-muted">{icon}</span>}
       <input
         ref={ref}
-        className="min-w-0 flex-1 bg-transparent text-[15px] text-foreground outline-none placeholder:text-muted-2"
+        className="min-w-0 flex-1 bg-transparent text-[15px] text-foreground outline-none placeholder:text-muted-2/55"
         {...props}
       />
       {trailing}

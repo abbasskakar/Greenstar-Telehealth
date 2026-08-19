@@ -158,8 +158,17 @@ export function LoginForm() {
           </Button>
         </form>
 
+        {isPatient && (
+          <p className="mt-6 text-center text-[15px] text-muted">
+            New patient?{" "}
+            <Link href="/sign-up" className="font-semibold text-primary hover:underline">
+              Create an account
+            </Link>
+          </p>
+        )}
+
         {/* Subtle mode switch — no upfront role picker */}
-        <div className="mt-6 rounded-xl border border-border bg-surface-2/50 p-1.5 text-center text-sm">
+        <div className="mt-4 rounded-xl border border-border bg-surface-2/50 p-1.5 text-center text-sm">
           {isPatient ? (
             <span className="text-muted">
               Staff member?{" "}
@@ -190,15 +199,6 @@ export function LoginForm() {
             </span>
           )}
         </div>
-
-        {isPatient && (
-          <p className="mt-5 text-center text-[15px] text-muted">
-            New patient?{" "}
-            <Link href="/sign-up" className="font-semibold text-primary hover:underline">
-              Create an account
-            </Link>
-          </p>
-        )}
 
         {!isPatient && (
           <p className="mt-8 text-center text-xs text-muted-2">
