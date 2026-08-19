@@ -15,6 +15,13 @@ export function DutyReminder({ initial }: { initial: "on_duty" | "off_duty" }) {
   const [busy, setBusy] = React.useState(false);
   const off = duty === "off_duty";
 
+  // Sync if duty is changed from the toggle (or anywhere).
+  React.useEffect(() => {
+    const h = (e: Event) => setDutyState((e as CustomEvent).detail);
+    window.addEventListener("gs-duty", h);
+    return () => window.removeEventListener("gs-duty", h);
+  }, []);
+
   React.useEffect(() => {
     if (off && !sessionStorage.getItem("gs-duty-prompted")) {
       setShowPrompt(true);
@@ -29,7 +36,10 @@ export function DutyReminder({ initial }: { initial: "on_duty" | "off_duty" }) {
     const res = await setDuty("on_duty");
     setBusy(false);
     if (!res.ok) setDutyState("off_duty");
-    else router.refresh();
+    else {
+      window.dispatchEvent(new CustomEvent("gs-duty", { detail: "on_duty" }));
+      router.refresh();
+    }
   }
 
   if (!off) return null;

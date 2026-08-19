@@ -15,6 +15,13 @@ export function DutyToggle({
   const [busy, setBusy] = React.useState(false);
   const on = duty === "on_duty";
 
+  // Stay in sync when duty changes elsewhere (e.g. the On-Duty reminder).
+  React.useEffect(() => {
+    const h = (e: Event) => setDutyState((e as CustomEvent).detail);
+    window.addEventListener("gs-duty", h);
+    return () => window.removeEventListener("gs-duty", h);
+  }, []);
+
   async function toggle() {
     const next = on ? "off_duty" : "on_duty";
     setBusy(true);
@@ -22,7 +29,10 @@ export function DutyToggle({
     const res = await setDuty(next);
     setBusy(false);
     if (!res.ok) setDutyState(duty);
-    else router.refresh();
+    else {
+      window.dispatchEvent(new CustomEvent("gs-duty", { detail: next }));
+      router.refresh();
+    }
   }
 
   return (
