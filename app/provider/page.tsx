@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Card, CardBody } from "@/components/ui/card";
 import { DutyHeartbeat } from "@/components/duty/duty-heartbeat";
 import { DutyToggle } from "@/components/duty/duty-toggle";
+import { DutyReminder } from "@/components/duty/duty-reminder";
 import { type AppointmentCardData } from "@/components/patterns/appointment-card";
 import { ProviderAppointmentCard } from "@/components/provider/appointment-card";
 
@@ -41,6 +42,8 @@ export default async function ProviderHome() {
         </div>
         <DutyToggle initial={profile.duty} />
       </div>
+
+      <DutyReminder initial={profile.duty} />
 
       <div className="grid grid-cols-2 gap-3">
         <Link href="/provider/new">

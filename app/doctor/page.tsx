@@ -10,6 +10,7 @@ import {
 import { RealtimeRefresh } from "@/components/notifications/realtime-refresh";
 import { DutyToggle } from "@/components/duty/duty-toggle";
 import { DutyHeartbeat } from "@/components/duty/duty-heartbeat";
+import { DutyReminder } from "@/components/duty/duty-reminder";
 import { SpecialtyFilter } from "@/components/doctor/specialty-filter";
 import { cn } from "@/lib/utils";
 
@@ -65,6 +66,8 @@ export default async function DoctorHome({
         </div>
         <DutyToggle initial={profile.duty} />
       </div>
+
+      <DutyReminder initial={profile.duty} />
 
       <div className="flex flex-wrap items-center gap-2">
         <div className="no-scrollbar -mx-1 flex flex-1 gap-2 overflow-x-auto px-1 pb-1">
