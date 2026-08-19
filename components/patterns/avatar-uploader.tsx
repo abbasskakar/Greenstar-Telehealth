@@ -1,8 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { UserRound, Camera, Trash2, Loader2 } from "lucide-react";
+import { UserRound, Camera, Trash2, Loader2, ImagePlus } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { AvatarCropModal } from "@/components/patterns/avatar-crop-modal";
 import { cn } from "@/lib/utils";
 
 export function AvatarUploader({
@@ -17,9 +18,26 @@ export function AvatarUploader({
   const [url, setUrl] = React.useState<string | null>(initialUrl);
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [menuOpen, setMenuOpen] = React.useState(false);
+  const [cropFile, setCropFile] = React.useState<File | null>(null);
   const fileRef = React.useRef<HTMLInputElement>(null);
+  const wrapRef = React.useRef<HTMLDivElement>(null);
 
-  async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
+  React.useEffect(() => {
+    function onDocClick(e: MouseEvent) {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node))
+        setMenuOpen(false);
+    }
+    document.addEventListener("mousedown", onDocClick);
+    return () => document.removeEventListener("mousedown", onDocClick);
+  }, []);
+
+  function pickFile() {
+    setMenuOpen(false);
+    fileRef.current?.click();
+  }
+
+  function onPick(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file) return;
@@ -27,32 +45,34 @@ export function AvatarUploader({
       setError("Please choose an image.");
       return;
     }
-    if (file.size > 3 * 1024 * 1024) {
-      setError("Image must be under 3 MB.");
+    if (file.size > 8 * 1024 * 1024) {
+      setError("Image must be under 8 MB.");
       return;
     }
+    setError(null);
+    setCropFile(file); // opens the crop modal
+  }
+
+  async function uploadBlob(blob: Blob) {
+    setCropFile(null);
     setError(null);
     setBusy(true);
     try {
       const supabase = createClient();
-      const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
-      const path = `${userId}/${Date.now()}.${ext}`;
-
+      const path = `${userId}/${Date.now()}.jpg`;
       const { error: upErr } = await supabase.storage
         .from("avatars")
-        .upload(path, file, { upsert: true, contentType: file.type });
+        .upload(path, blob, { upsert: true, contentType: "image/jpeg" });
       if (upErr) throw upErr;
 
       const publicUrl = supabase.storage.from("avatars").getPublicUrl(path).data
         .publicUrl;
-
       const { error: dbErr } = await supabase
         .from("profiles")
         .update({ avatar_url: publicUrl })
         .eq("id", userId);
       if (dbErr) throw dbErr;
 
-      // Best-effort cleanup of older files in this user's folder.
       const { data: list } = await supabase.storage.from("avatars").list(userId);
       const old = (list ?? [])
         .filter((f) => `${userId}/${f.name}` !== path)
@@ -68,6 +88,7 @@ export function AvatarUploader({
   }
 
   async function onDelete() {
+    setMenuOpen(false);
     setError(null);
     setBusy(true);
     try {
@@ -85,10 +106,12 @@ export function AvatarUploader({
   }
 
   return (
-    <div className={cn("flex flex-col items-center gap-2", className)}>
+    <div ref={wrapRef} className={cn("relative flex flex-col items-center", className)}>
       <div className="relative">
         <span className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-4 border-surface bg-primary text-primary-contrast shadow-pop">
-          {url ? (
+          {busy ? (
+            <Loader2 size={26} className="animate-spin" />
+          ) : url ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={url} alt="Profile" className="h-full w-full object-cover" />
           ) : (
@@ -98,33 +121,54 @@ export function AvatarUploader({
 
         <button
           type="button"
-          onClick={() => fileRef.current?.click()}
+          onClick={() => setMenuOpen((o) => !o)}
           disabled={busy}
-          aria-label={url ? "Change photo" : "Add photo"}
+          aria-label="Edit photo"
           className="absolute -bottom-1 -right-1 flex h-9 w-9 items-center justify-center rounded-full border-2 border-surface bg-primary text-primary-contrast shadow-pop transition-transform active:scale-95 disabled:opacity-60"
         >
-          {busy ? <Loader2 size={16} className="animate-spin" /> : <Camera size={16} />}
+          <Camera size={16} />
         </button>
-
-        <input
-          ref={fileRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={onPick}
-        />
       </div>
 
-      {url && !busy && (
-        <button
-          type="button"
-          onClick={onDelete}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-emergency hover:underline"
-        >
-          <Trash2 size={13} /> Remove photo
-        </button>
+      {menuOpen && (
+        <div className="absolute top-full z-20 mt-2 w-48 overflow-hidden rounded-xl border border-border bg-surface p-1 shadow-float">
+          <button
+            type="button"
+            onClick={pickFile}
+            className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-foreground hover:bg-surface-2"
+          >
+            <ImagePlus size={16} className="text-primary" />
+            {url ? "Change photo" : "Upload a photo"}
+          </button>
+          {url && (
+            <button
+              type="button"
+              onClick={onDelete}
+              className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-emergency hover:bg-emergency-soft"
+            >
+              <Trash2 size={16} /> Remove photo
+            </button>
+          )}
+        </div>
       )}
-      {error && <p className="text-xs font-medium text-emergency">{error}</p>}
+
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={onPick}
+      />
+
+      {error && <p className="mt-2 text-xs font-medium text-emergency">{error}</p>}
+
+      {cropFile && (
+        <AvatarCropModal
+          file={cropFile}
+          onCancel={() => setCropFile(null)}
+          onCropped={uploadBlob}
+        />
+      )}
     </div>
   );
 }

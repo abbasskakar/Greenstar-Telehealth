@@ -25,12 +25,12 @@ export function ProfileView({
 
       <Card className="overflow-hidden">
         <div className="gs-brand-gradient h-20" />
-        <CardBody className="pt-0">
-          <div className="-mt-14 mb-3 w-fit">
+        <CardBody className="flex flex-col items-center pt-0 text-center">
+          <div className="-mt-16">
             <AvatarUploader userId={userId} initialUrl={avatarUrl} />
           </div>
-          <p className="truncate text-xl font-bold text-foreground">{name}</p>
-          <div className="mt-1.5 flex flex-wrap items-center gap-2">
+          <p className="mt-3 max-w-full truncate text-xl font-bold text-foreground">{name}</p>
+          <div className="mt-1.5 flex flex-wrap items-center justify-center gap-2">
             <StatusPill tone="primary" dot={false}>
               {ROLE_LABEL[role]}
             </StatusPill>

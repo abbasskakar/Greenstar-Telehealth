@@ -100,12 +100,14 @@ export function PatientProfileEditor({
       <Card className="overflow-hidden">
         <div className="gs-brand-gradient h-20" />
         <CardBody className="space-y-5 pt-0">
-          {/* Identity */}
-          <div>
-            <div className="-mt-14 mb-3 w-fit">
+          {/* Identity — centered */}
+          <div className="flex flex-col items-center text-center">
+            <div className="-mt-16">
               <AvatarUploader userId={userId} initialUrl={initialAvatar} />
             </div>
-            <p className="truncate text-xl font-bold text-foreground">{name || "Patient"}</p>
+            <p className="mt-3 max-w-full truncate text-xl font-bold text-foreground">
+              {name || "Patient"}
+            </p>
             <div className="mt-1.5">
               <StatusPill tone="primary" dot={false}>
                 Public User
