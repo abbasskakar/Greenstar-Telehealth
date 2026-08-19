@@ -7,10 +7,8 @@ import { Card, CardBody } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { VitalCards } from "@/components/patterns/vital-cards";
 import { VitalTrends } from "@/components/patterns/vital-trends";
-import {
-  AppointmentCard,
-  type AppointmentCardData,
-} from "@/components/patterns/appointment-card";
+import { type AppointmentCardData } from "@/components/patterns/appointment-card";
+import { ProviderAppointmentCard } from "@/components/provider/appointment-card";
 import type { Vitals } from "@/lib/vitals";
 
 export default async function PatientProfile({
@@ -33,7 +31,7 @@ export default async function PatientProfile({
     supabase
       .from("appointments")
       .select(
-        `id, type, status, specialty, chief_complaint, patient_id,
+        `id, type, status, specialty, chief_complaint, patient_id, created_at, assigned_doctor_name,
          patient:patients ( full_name, age, gender ),
          vitals ( bp_systolic, bp_diastolic, heart_rate, temperature_f, spo2 )`,
       )
@@ -104,7 +102,7 @@ export default async function PatientProfile({
         </div>
         <div className="space-y-3">
           {appointments.map((a) => (
-            <AppointmentCard key={a.id} appt={a} href={`/provider/appointments/${a.id}`} />
+            <ProviderAppointmentCard key={a.id} appt={a} />
           ))}
         </div>
       </div>
