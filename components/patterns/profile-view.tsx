@@ -24,9 +24,9 @@ export function ProfileView({
       <h1 className="text-2xl font-bold text-foreground">Profile</h1>
 
       <Card className="overflow-hidden">
-        <div className="gs-brand-gradient h-40" />
+        <div className="gs-brand-gradient h-24" />
         <CardBody className="flex flex-col items-center pt-0 text-center">
-          <div className="-mt-28">
+          <div className="-mt-24">
             <AvatarUploader userId={userId} initialUrl={avatarUrl} />
           </div>
           <p className="mt-3 max-w-full truncate text-xl font-bold text-foreground">{name}</p>
