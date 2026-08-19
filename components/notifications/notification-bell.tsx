@@ -5,6 +5,37 @@ import Link from "next/link";
 import { Bell } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
+/** Short, pleasant two-note chime via Web Audio (no asset needed). */
+function playChime() {
+  try {
+    const AC =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    const ctx = new AC();
+    const notes = [
+      { f: 880, t: 0 },
+      { f: 1174.7, t: 0.12 },
+    ];
+    notes.forEach(({ f, t }) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.value = f;
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      const start = ctx.currentTime + t;
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(0.18, start + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.28);
+      osc.start(start);
+      osc.stop(start + 0.3);
+    });
+    setTimeout(() => ctx.close(), 700);
+  } catch {
+    /* audio blocked (no user gesture yet) — the badge still updates */
+  }
+}
+
 export function NotificationBell({
   userId,
   initialUnread,
@@ -35,7 +66,11 @@ export function NotificationBell({
             table: "notifications",
             filter: `user_id=eq.${userId}`,
           },
-          () => setUnread((u) => u + 1),
+          () => {
+            setUnread((u) => u + 1);
+            playChime();
+            navigator.vibrate?.(120);
+          },
         )
         .subscribe();
       if (cancelled) {
