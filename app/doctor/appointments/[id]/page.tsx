@@ -12,6 +12,7 @@ import { ConsentCard } from "@/components/notes/consent-card";
 import { PrescriptionView, type Prescription } from "@/components/rx/prescription-view";
 import { PrescriptionForm } from "@/components/rx/prescription-form";
 import { LabBlock, type Lab } from "@/components/rx/lab-block";
+import { fetchAvatars } from "@/lib/avatars";
 import type { Vitals } from "@/lib/vitals";
 
 const statusMeta = {
@@ -79,6 +80,10 @@ export default async function DoctorAppointmentDetail({
   } | null;
   const vitals = (appt.vitals as unknown as Vitals[])?.[0];
   const meta = statusMeta[appt.status as keyof typeof statusMeta];
+  const avatars = await fetchAvatars(
+    supabase,
+    (notes ?? []).map((n) => n.author_id),
+  );
 
   return (
     <div className="space-y-5">
@@ -179,6 +184,7 @@ export default async function DoctorAppointmentDetail({
           appointmentId={appt.id}
           currentUserId={user.id}
           initial={(notes ?? []) as Note[]}
+          avatars={avatars}
         />
       </div>
 

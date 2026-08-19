@@ -1,8 +1,16 @@
+import Link from "next/link";
 import { Logo } from "@/components/ui/logo";
+import { Avatar } from "@/components/ui/avatar";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import { getSessionProfile } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+
+const PROFILE_PATH: Record<string, string> = {
+  public: "/patient/profile",
+  provider: "/provider/profile",
+  doctor: "/doctor/profile",
+};
 
 export async function TopBar() {
   const session = await getSessionProfile();
@@ -25,6 +33,19 @@ export async function TopBar() {
         <ThemeToggle />
         {session?.user && (
           <NotificationBell userId={session.user.id} initialUnread={unread} />
+        )}
+        {session?.profile && PROFILE_PATH[session.profile.role] && (
+          <Link
+            href={PROFILE_PATH[session.profile.role]}
+            aria-label="Your profile"
+            className="ml-0.5 rounded-full ring-2 ring-transparent transition-shadow hover:ring-primary/30"
+          >
+            <Avatar
+              url={session.profile.avatar_url}
+              name={session.profile.full_name}
+              size={34}
+            />
+          </Link>
         )}
       </div>
     </header>

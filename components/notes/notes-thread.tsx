@@ -4,6 +4,7 @@ import * as React from "react";
 import { Send, Mic, Square, Play, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { addTextNote, addVoiceNote } from "@/app/notes/actions";
+import { Avatar } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 
 export type Note = {
@@ -27,10 +28,12 @@ export function NotesThread({
   appointmentId,
   currentUserId,
   initial,
+  avatars = {},
 }: {
   appointmentId: string;
   currentUserId: string;
   initial: Note[];
+  avatars?: Record<string, string | null>;
 }) {
   const [notes, setNotes] = React.useState<Note[]>(initial);
   const [text, setText] = React.useState("");
@@ -144,27 +147,40 @@ export function NotesThread({
         {notes.map((n) => {
           const mine = n.author_id === currentUserId;
           return (
-            <div key={n.id} className={cn("flex flex-col", mine ? "items-end" : "items-start")}>
-              {!mine && n.author_name && (
-                <span className="mb-1 px-1 text-xs font-semibold text-muted-2">
-                  {n.author_name}
-                </span>
+            <div
+              key={n.id}
+              className={cn("flex items-end gap-2", mine ? "flex-row-reverse" : "flex-row")}
+            >
+              {!mine && (
+                <Avatar
+                  url={n.author_id ? avatars[n.author_id] : null}
+                  name={n.author_name}
+                  size={30}
+                  className="mb-5"
+                />
               )}
-              <div
-                className={cn(
-                  "max-w-[80%] rounded-2xl px-3.5 py-2.5 text-[15px]",
-                  mine
-                    ? "rounded-br-sm bg-primary text-primary-contrast"
-                    : "rounded-bl-sm bg-surface-2 text-foreground",
+              <div className={cn("flex min-w-0 flex-col", mine ? "items-end" : "items-start")}>
+                {!mine && n.author_name && (
+                  <span className="mb-1 px-1 text-xs font-semibold text-muted-2">
+                    {n.author_name}
+                  </span>
                 )}
-              >
-                {n.kind === "voice" ? (
-                  <VoicePlayer path={n.audio_path} duration={n.duration_sec} mine={mine} />
-                ) : (
-                  <p className="whitespace-pre-wrap break-words">{n.body}</p>
-                )}
+                <div
+                  className={cn(
+                    "max-w-[80%] rounded-2xl px-3.5 py-2.5 text-[15px]",
+                    mine
+                      ? "rounded-br-sm bg-primary text-primary-contrast"
+                      : "rounded-bl-sm bg-surface-2 text-foreground",
+                  )}
+                >
+                  {n.kind === "voice" ? (
+                    <VoicePlayer path={n.audio_path} duration={n.duration_sec} mine={mine} />
+                  ) : (
+                    <p className="whitespace-pre-wrap break-words">{n.body}</p>
+                  )}
+                </div>
+                <span className="mt-1 px-1 text-[11px] text-muted-2">{clock(n.created_at)}</span>
               </div>
-              <span className="mt-1 px-1 text-[11px] text-muted-2">{clock(n.created_at)}</span>
             </div>
           );
         })}

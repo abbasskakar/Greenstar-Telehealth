@@ -15,6 +15,7 @@ export default async function AdminLayout({
         variant="admin"
         name={profile.full_name || "Administrator"}
         roleLabel={ROLE_LABEL.admin}
+        avatarUrl={profile.avatar_url}
       />
       <main id="main-content" className="flex-1 overflow-x-hidden">
         <div className="gs-rise mx-auto max-w-6xl px-5 py-6 sm:px-8">{children}</div>

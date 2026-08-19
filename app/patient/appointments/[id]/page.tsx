@@ -10,6 +10,7 @@ import { PrescriptionView, type Prescription } from "@/components/rx/prescriptio
 import { LabBlock, type Lab } from "@/components/rx/lab-block";
 import { VitalCards } from "@/components/patterns/vital-cards";
 import { CancelAppointmentButton } from "@/components/patient/cancel-appointment";
+import { fetchAvatars } from "@/lib/avatars";
 import type { Vitals } from "@/lib/vitals";
 
 const statusMeta = {
@@ -45,6 +46,10 @@ export default async function PatientAppointmentDetail({
   const meta = statusMeta[appt.status as keyof typeof statusMeta];
   const vitals = (appt.vitals as unknown as Vitals[])?.[0];
   const canCancel = ["pending", "claimed"].includes(appt.status);
+  const avatars = await fetchAvatars(
+    supabase,
+    (notes ?? []).map((n) => n.author_id),
+  );
 
   return (
     <div className="space-y-5">
@@ -102,7 +107,7 @@ export default async function PatientAppointmentDetail({
 
       <div>
         <h2 className="mb-3 text-lg font-bold text-foreground">Messages</h2>
-        <NotesThread appointmentId={appt.id} currentUserId={user.id} initial={(notes ?? []) as Note[]} />
+        <NotesThread appointmentId={appt.id} currentUserId={user.id} initial={(notes ?? []) as Note[]} avatars={avatars} />
       </div>
 
       {canCancel && <CancelAppointmentButton id={appt.id} />}

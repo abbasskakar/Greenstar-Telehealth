@@ -15,6 +15,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
+import { Avatar } from "@/components/ui/avatar";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { SignOutButton } from "./sign-out-button";
 import { cn } from "@/lib/utils";
@@ -45,10 +46,12 @@ export function Sidebar({
   variant,
   name,
   roleLabel,
+  avatarUrl = null,
 }: {
   variant: SidebarVariant;
   name: string;
   roleLabel: string;
+  avatarUrl?: string | null;
 }) {
   const pathname = usePathname();
   const items = NAVS[variant];
@@ -86,8 +89,13 @@ export function Sidebar({
       </nav>
 
       <div className="mt-4 rounded-xl border border-border bg-surface-2 p-3">
-        <p className="truncate text-sm font-semibold text-foreground">{name}</p>
-        <p className="mb-2.5 text-xs text-muted-2">{roleLabel}</p>
+        <div className="mb-2.5 flex items-center gap-2.5">
+          <Avatar url={avatarUrl} name={name} size={38} />
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold text-foreground">{name}</p>
+            <p className="text-xs text-muted-2">{roleLabel}</p>
+          </div>
+        </div>
         <SignOutButton />
       </div>
     </aside>
