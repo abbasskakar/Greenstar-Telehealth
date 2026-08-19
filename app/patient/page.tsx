@@ -3,11 +3,10 @@ import { Plus, CalendarHeart, Activity } from "lucide-react";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardBody } from "@/components/ui/card";
-import {
-  AppointmentCard,
-  type AppointmentCardData,
-} from "@/components/patterns/appointment-card";
+import { type AppointmentCardData } from "@/components/patterns/appointment-card";
+import { PatientAppointmentCard } from "@/components/patient/appointment-card";
 import { VitalTrends } from "@/components/patterns/vital-trends";
+import { fetchAvatars } from "@/lib/avatars";
 import type { Vitals } from "@/lib/vitals";
 
 export default async function PatientHome() {
@@ -18,14 +17,20 @@ export default async function PatientHome() {
   const { data } = await supabase
     .from("appointments")
     .select(
-      `id, type, status, specialty, chief_complaint, patient_id, created_at, assigned_doctor_name,
+      `id, type, status, specialty, chief_complaint, patient_id, created_at, assigned_doctor_name, assigned_doctor_id,
        patient:patients ( full_name, age, gender ),
        vitals ( bp_systolic, bp_diastolic, heart_rate, spo2 )`,
     )
     .eq("created_by", profile.id)
     .order("created_at", { ascending: false });
 
-  const appts = (data ?? []) as unknown as AppointmentCardData[];
+  const rows = (data ?? []) as unknown as (AppointmentCardData & {
+    assigned_doctor_id: string | null;
+  })[];
+  const doctorAvatars = await fetchAvatars(
+    supabase,
+    rows.map((r) => r.assigned_doctor_id),
+  );
 
   // Vitals across this patient's visits (oldest → newest) for trend sparklines.
   const { data: vitalsData } = await supabase
@@ -65,10 +70,14 @@ export default async function PatientHome() {
 
       <div className="pt-2">
         <h2 className="mb-4 text-lg font-bold text-foreground">My Appointments</h2>
-        {appts.length ? (
+        {rows.length ? (
           <div className="space-y-4">
-            {appts.map((a) => (
-              <AppointmentCard key={a.id} appt={a} href={`/patient/appointments/${a.id}`} />
+            {rows.map((a) => (
+              <PatientAppointmentCard
+                key={a.id}
+                appt={a}
+                doctorAvatar={a.assigned_doctor_id ? doctorAvatars[a.assigned_doctor_id] : null}
+              />
             ))}
           </div>
         ) : (
