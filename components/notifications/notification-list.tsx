@@ -139,14 +139,14 @@ export function NotificationList({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-3">
-        <div className="no-scrollbar flex gap-2 overflow-x-auto">
+      <div className="space-y-3">
+        <div className="flex flex-wrap gap-2">
           {FILTERS.map((f) => (
             <button
               key={f.key}
               onClick={() => setFilter(f.key)}
               className={cn(
-                "shrink-0 rounded-full px-3.5 py-1.5 text-sm font-semibold transition-colors",
+                "shrink-0 rounded-full px-3 py-1.5 text-sm font-semibold transition-colors",
                 filter === f.key
                   ? "bg-primary text-primary-contrast"
                   : "bg-surface-2 text-muted hover:text-foreground",
@@ -158,12 +158,14 @@ export function NotificationList({
           ))}
         </div>
         {unreadCount > 0 && (
-          <button
-            onClick={markAllRead}
-            className="shrink-0 text-sm font-semibold text-primary hover:underline"
-          >
-            Mark all read
-          </button>
+          <div className="flex justify-end">
+            <button
+              onClick={markAllRead}
+              className="text-sm font-semibold text-primary hover:underline"
+            >
+              Mark all read
+            </button>
+          </div>
         )}
       </div>
 
