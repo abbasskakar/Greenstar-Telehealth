@@ -4,6 +4,7 @@ import {
   UserSearch,
   MessageSquare,
   CalendarDays,
+  Clock,
   AlertTriangle,
   ChevronRight,
 } from "lucide-react";
@@ -32,12 +33,17 @@ export function PatientAppointmentCard({
   const meta = statusMeta[appt.status];
   const assigned = appt.assigned_doctor_name;
   const href = `/patient/appointments/${appt.id}`;
-  const date = appt.created_at
-    ? new Date(appt.created_at).toLocaleDateString(undefined, {
-        weekday: "short",
+  const when = appt.created_at ? new Date(appt.created_at) : null;
+  const date = when
+    ? when.toLocaleDateString(undefined, {
+        weekday: "long",
+        year: "numeric",
         month: "short",
         day: "numeric",
       })
+    : null;
+  const time = when
+    ? when.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })
     : null;
 
   return (
@@ -80,16 +86,14 @@ export function PatientAppointmentCard({
       <div className="border-t border-border" />
 
       {/* Details */}
-      <div className="space-y-2 px-4 py-3.5">
-        {appt.chief_complaint && (
-          <p className="flex items-start gap-2 text-sm text-foreground">
-            <MessageSquare size={15} className="mt-0.5 shrink-0 text-muted-2" />
-            <span className="line-clamp-2">{appt.chief_complaint}</span>
-          </p>
-        )}
-        <div className="flex items-center gap-2 text-sm text-muted">
-          <CalendarDays size={15} className="shrink-0 text-muted-2" />
-          {date ? `Requested ${date}` : "Requested"}
+      <div className="space-y-2.5 px-4 py-3.5">
+        <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+          <CalendarDays size={16} className="shrink-0 text-muted-2" />
+          {date ?? "—"}
+        </div>
+        <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+          <Clock size={16} className="shrink-0 text-muted-2" />
+          {time ?? "—"}
           {appt.status === "pending" && appt.created_at && (
             <span className="ml-auto">
               <WaitTimer since={appt.created_at} />
