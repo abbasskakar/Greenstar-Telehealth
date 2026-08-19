@@ -38,6 +38,24 @@ export async function POST(req: Request) {
   }
 
   const admin = createAdminClient();
+
+  // Deep link straight to the relevant section, based on the recipient's role.
+  const { data: profile } = await admin
+    .from("profiles")
+    .select("role")
+    .eq("id", user_id)
+    .maybeSingle();
+  const link = appointment_id
+    ? (
+        {
+          doctor: `/doctor/appointments/${appointment_id}`,
+          provider: `/provider/appointments/${appointment_id}`,
+          public: `/patient/appointments/${appointment_id}`,
+          admin: `/admin/appointments`,
+        } as Record<string, string>
+      )[profile?.role ?? ""] ?? "/notifications"
+    : "/notifications";
+
   const { data: tokens } = await admin
     .from("push_tokens")
     .select("token")
@@ -57,9 +75,10 @@ export async function POST(req: Request) {
           data: {
             appointment_id: appointment_id ?? "",
             type: type ?? "",
+            link,
           },
           webpush: {
-            fcmOptions: { link: "/notifications" },
+            fcmOptions: { link },
             notification: { icon: "/icons/icon.svg" },
           },
         });

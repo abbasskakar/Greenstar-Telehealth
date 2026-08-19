@@ -28,13 +28,18 @@ messaging.onBackgroundMessage((payload) => {
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  const url = "/notifications";
+  const data = event.notification.data || {};
+  const path = data.link || "/notifications";
+  const target = new URL(path, self.location.origin).href;
   event.waitUntil(
     self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((list) => {
       for (const c of list) {
-        if ("focus" in c) return c.focus();
+        if ("focus" in c) {
+          c.navigate(target).catch(() => {});
+          return c.focus();
+        }
       }
-      return self.clients.openWindow(url);
+      return self.clients.openWindow(target);
     }),
   );
 });
