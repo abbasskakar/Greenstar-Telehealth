@@ -98,11 +98,11 @@ export function PatientProfileEditor({
       <h1 className="text-2xl font-bold text-foreground">Profile</h1>
 
       <Card className="overflow-hidden">
-        <div className="gs-brand-gradient h-28" />
+        <div className="gs-brand-gradient h-36" />
         <CardBody className="space-y-5 pt-0">
           {/* Identity — centered */}
           <div className="flex flex-col items-center text-center">
-            <div className="-mt-20">
+            <div className="-mt-24">
               <AvatarUploader userId={userId} initialUrl={initialAvatar} />
             </div>
             <p className="mt-3 max-w-full truncate text-xl font-bold text-foreground">
