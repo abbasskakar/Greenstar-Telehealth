@@ -85,6 +85,50 @@ export async function resetUserPassword(
   return { ok: true };
 }
 
+export type UserDetail = {
+  id: string;
+  full_name: string;
+  role: string;
+  specialty: string | null;
+  phone: string | null;
+  duty: "on_duty" | "off_duty";
+  is_active: boolean;
+  avatar_url: string | null;
+  created_at: string;
+};
+export type UserAppt = {
+  id: string;
+  type: string;
+  status: string;
+  specialty: string | null;
+  created_at: string;
+  assigned_doctor_name: string | null;
+};
+
+/** Full detail for the admin user popup. */
+export async function getUserDetail(
+  userId: string,
+): Promise<{ ok: boolean; user?: UserDetail; appointments?: UserAppt[] }> {
+  await requireRole("admin");
+  const admin = createAdminClient();
+  const { data: user } = await admin
+    .from("profiles")
+    .select("id, full_name, role, specialty, phone, duty, is_active, avatar_url, created_at")
+    .eq("id", userId)
+    .maybeSingle();
+  if (!user) return { ok: false };
+
+  const isDoctor = user.role === "doctor";
+  const { data: appts } = await admin
+    .from("appointments")
+    .select("id, type, status, specialty, created_at, assigned_doctor_name")
+    .or(isDoctor ? `assigned_doctor_id.eq.${userId}` : `created_by.eq.${userId}`)
+    .order("created_at", { ascending: false })
+    .limit(30);
+
+  return { ok: true, user: user as UserDetail, appointments: (appts ?? []) as UserAppt[] };
+}
+
 /** Permanently delete a user account (cascades their profile). */
 export async function deleteStaffUser(userId: string): Promise<ActionResult> {
   const { profile } = await requireRole("admin");

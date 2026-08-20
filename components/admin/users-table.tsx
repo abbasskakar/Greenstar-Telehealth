@@ -1,9 +1,9 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Power, PowerOff, KeyRound } from "lucide-react";
+import { UserDetailModal } from "@/components/admin/user-detail-modal";
 import { StatusPill } from "@/components/ui/status-pill";
 import { ROLE_LABEL, type Role } from "@/lib/auth/roles";
 import { setUserActive, resetUserPassword } from "@/app/admin/users/actions";
@@ -28,6 +28,7 @@ const roleTone: Record<Role, "primary" | "info" | "success" | "warning" | "neutr
 export function UsersTable({ users, currentUserId }: { users: UserRow[]; currentUserId: string }) {
   const router = useRouter();
   const [busy, setBusy] = React.useState<string | null>(null);
+  const [openId, setOpenId] = React.useState<string | null>(null);
 
   async function toggle(u: UserRow) {
     setBusy(u.id);
@@ -59,9 +60,9 @@ export function UsersTable({ users, currentUserId }: { users: UserRow[]; current
           {users.map((u) => (
             <tr key={u.id} className="border-b border-border transition-colors last:border-0 hover:bg-surface-2/50">
               <td className="px-5 py-3.5">
-                <Link href={`/admin/users/${u.id}`} className="font-medium text-foreground hover:text-primary hover:underline">
+                <button onClick={() => setOpenId(u.id)} className="font-medium text-foreground hover:text-primary hover:underline">
                   {u.full_name || "—"}
-                </Link>
+                </button>
                 {u.id === currentUserId && (
                   <span className="ml-2 text-xs text-muted-2">(you)</span>
                 )}
@@ -106,6 +107,14 @@ export function UsersTable({ users, currentUserId }: { users: UserRow[]; current
           ))}
         </tbody>
       </table>
+
+      {openId && (
+        <UserDetailModal
+          userId={openId}
+          currentUserId={currentUserId}
+          onClose={() => setOpenId(null)}
+        />
+      )}
     </div>
   );
 }
