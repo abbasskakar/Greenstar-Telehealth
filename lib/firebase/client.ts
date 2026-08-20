@@ -21,8 +21,18 @@ export async function getFcmToken(): Promise<string | null> {
 
     const app = getApps().length ? getApps()[0] : initializeApp(config);
     const messaging = getMessaging(app);
+    // Pass the (public) web config to the SW via its query string so no keys
+    // are hardcoded in the committed service-worker file.
+    const swParams = new URLSearchParams({
+      apiKey: config.apiKey ?? "",
+      authDomain: config.authDomain ?? "",
+      projectId: config.projectId ?? "",
+      storageBucket: config.storageBucket ?? "",
+      messagingSenderId: config.messagingSenderId ?? "",
+      appId: config.appId ?? "",
+    });
     const registration = await navigator.serviceWorker.register(
-      "/firebase-messaging-sw.js",
+      `/firebase-messaging-sw.js?${swParams.toString()}`,
     );
     const token = await getToken(messaging, {
       vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,

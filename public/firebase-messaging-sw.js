@@ -1,15 +1,18 @@
 /* Firebase Cloud Messaging background handler — delivers push when the app
-   is closed or in the background. Config values here are public (client) keys. */
+   is closed or in the background. The Firebase web config is passed in via the
+   registration query string (from NEXT_PUBLIC_* env vars) so no keys live in
+   this committed file. */
 importScripts("https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js");
 importScripts("https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js");
 
+const params = new URL(self.location).searchParams;
 firebase.initializeApp({
-  apiKey: "AIzaSyA3A7TxUoENO7C0FifKsLTPVIfgrTrsjZU",
-  authDomain: "greenstar-f2271.firebaseapp.com",
-  projectId: "greenstar-f2271",
-  storageBucket: "greenstar-f2271.firebasestorage.app",
-  messagingSenderId: "569089912106",
-  appId: "1:569089912106:web:c9c1386276f1b04b4cc253",
+  apiKey: params.get("apiKey"),
+  authDomain: params.get("authDomain"),
+  projectId: params.get("projectId"),
+  storageBucket: params.get("storageBucket"),
+  messagingSenderId: params.get("messagingSenderId"),
+  appId: params.get("appId"),
 });
 
 const messaging = firebase.messaging();
