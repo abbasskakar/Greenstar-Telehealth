@@ -9,7 +9,6 @@ import { Input, Label } from "@/components/ui/input";
 import { StatusPill } from "@/components/ui/status-pill";
 import { createClient } from "@/lib/supabase/client";
 import { createLabRequest, addLabResult } from "@/app/rx/actions";
-import { cn } from "@/lib/utils";
 
 export type Lab = {
   id: string;
@@ -60,20 +59,39 @@ function LabItem({
   const [note, setNote] = React.useState("");
   const [files, setFiles] = React.useState<FileList | null>(null);
   const [busy, setBusy] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
 
   async function upload() {
     setBusy(true);
+    setError(null);
     const supabase = createClient();
     const paths: string[] = [];
+    let failed = 0;
     if (files) {
       for (const f of Array.from(files)) {
         const path = `${appointmentId}/${crypto.randomUUID()}-${f.name}`;
         const { error } = await supabase.storage.from("lab-results").upload(path, f);
-        if (!error) paths.push(path);
+        if (error) failed++;
+        else paths.push(path);
       }
     }
-    await addLabResult(lab.id, appointmentId, note, paths);
+    // Nothing to save (all uploads failed and no note) — surface it, don't
+    // silently mark the request "resulted".
+    if (failed > 0 && paths.length === 0 && !note.trim()) {
+      setBusy(false);
+      setError("Upload failed — check the file(s) and try again.");
+      return;
+    }
+    const res = await addLabResult(lab.id, appointmentId, note, paths);
     setBusy(false);
+    if (!res.ok) {
+      setError(res.error ?? "Could not save the result.");
+      return;
+    }
+    if (failed > 0) {
+      setError(`Saved, but ${failed} file(s) failed to upload.`);
+      return;
+    }
     router.refresh();
   }
 
@@ -122,6 +140,9 @@ function LabItem({
               {busy ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
               {busy ? "Uploading…" : "Submit results"}
             </Button>
+            {error && (
+              <p className="rounded-lg bg-emergency-soft px-3 py-2 text-sm font-medium text-emergency">{error}</p>
+            )}
           </div>
         )}
       </CardBody>

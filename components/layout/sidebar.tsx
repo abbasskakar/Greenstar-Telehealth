@@ -32,6 +32,7 @@ const NAVS: Record<SidebarVariant, NavItem[]> = {
     { href: "/admin/registrations", label: "Registrations", icon: UserPlus },
     { href: "/admin/patients", label: "Patients", icon: HeartPulse },
     { href: "/admin/appointments", label: "Appointments", icon: CalendarDays },
+    { href: "/admin/camps", label: "Camps & Events", icon: Tent },
     { href: "/admin/map", label: "Coverage Map", icon: Map },
     { href: "/admin/audit", label: "Audit Log", icon: ScrollText },
     { href: "/admin/settings", label: "Settings", icon: Settings },
@@ -92,15 +93,13 @@ export function Sidebar({
         </ul>
       </nav>
 
-      <div className="mt-4 rounded-xl border border-border bg-surface-2 p-3">
-        <div className="mb-2.5 flex items-center gap-2.5">
-          <Avatar url={avatarUrl} name={name} size={38} />
-          <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-foreground">{name}</p>
-            <p className="text-xs text-muted-2">{roleLabel}</p>
-          </div>
+      <div className="mt-4 flex items-center gap-2.5 rounded-xl border border-border bg-surface-2 p-2.5">
+        <Avatar url={avatarUrl} name={name} size={40} />
+        <div className="min-w-0 flex-1">
+          <p className="line-clamp-2 break-words text-sm font-semibold leading-tight text-foreground">{name}</p>
+          <p className="truncate text-xs text-muted-2">{roleLabel}</p>
         </div>
-        <SignOutButton />
+        <SignOutButton iconOnly />
       </div>
     </aside>
   );

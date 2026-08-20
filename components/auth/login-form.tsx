@@ -158,14 +158,12 @@ export function LoginForm() {
           </Button>
         </form>
 
-        {isPatient && (
-          <p className="mt-6 text-center text-[15px] text-muted">
-            New patient?{" "}
-            <Link href="/sign-up" className="font-semibold text-primary hover:underline">
-              Create an account
-            </Link>
-          </p>
-        )}
+        <p className="mt-6 text-center text-[15px] text-muted">
+          New patient?{" "}
+          <Link href="/sign-up" className="font-semibold text-primary hover:underline">
+            Create an account
+          </Link>
+        </p>
 
         {/* Subtle mode switch — no upfront role picker */}
         <div className="mt-4 rounded-xl border border-border bg-surface-2/50 p-1.5 text-center text-sm">

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, UserRound, Phone, Plus } from "lucide-react";
+import { ArrowLeft, UserRound, Phone, Plus, CalendarPlus } from "lucide-react";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardBody } from "@/components/ui/card";
@@ -99,11 +99,25 @@ export default async function PatientProfile({
             </Button>
           </Link>
         </div>
-        <div className="space-y-3">
-          {appointments.map((a) => (
-            <AppointmentCard key={a.id} appt={a} basePath="/provider/appointments" view="staff" showVitals />
-          ))}
-        </div>
+        {appointments.length ? (
+          <div className="space-y-3">
+            {appointments.map((a) => (
+              <AppointmentCard key={a.id} appt={a} basePath="/provider/appointments" view="staff" showVitals />
+            ))}
+          </div>
+        ) : (
+          <Card>
+            <CardBody className="flex flex-col items-center gap-2 py-10 text-center">
+              <span className="flex h-11 w-11 items-center justify-center rounded-full bg-surface-2 text-muted-2">
+                <CalendarPlus size={20} />
+              </span>
+              <p className="text-[15px] font-medium text-foreground">No appointments yet</p>
+              <p className="max-w-xs text-sm text-muted">
+                Create one for this patient with the <span className="font-medium text-foreground">New</span> button above.
+              </p>
+            </CardBody>
+          </Card>
+        )}
       </div>
     </div>
   );

@@ -2,14 +2,13 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Users, Camera, Loader2, CheckCircle2, ImageIcon, Boxes } from "lucide-react";
+import { Users, Camera, Loader2, CheckCircle2, ImageIcon, Boxes, Trash2 } from "lucide-react";
 import { Card, CardBody } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
-import { StatusPill } from "@/components/ui/status-pill";
 import { createClient } from "@/lib/supabase/client";
 import { campMeta } from "@/lib/constants/camps";
-import { updateCamp } from "@/app/camps/actions";
+import { updateCamp, deleteCamp } from "@/app/camps/actions";
 import { cn } from "@/lib/utils";
 
 export type Camp = {
@@ -24,10 +23,18 @@ export type Camp = {
 
 type StockRow = { item: string; available: string; used: string };
 
-const STATUSES = ["scheduled", "active", "completed"];
+const STATUSES = ["scheduled", "active", "completed", "cancelled"];
 
-export function CampDetail({ camp }: { camp: Camp }) {
+export function CampDetail({
+  camp,
+  basePath = "/program/camps",
+}: {
+  camp: Camp;
+  basePath?: string;
+}) {
   const router = useRouter();
+  const [confirmDelete, setConfirmDelete] = React.useState(false);
+  const [removing, setRemoving] = React.useState(false);
   const meta = campMeta(camp.type);
   const [turnout, setTurnout] = React.useState(camp.actual_turnout?.toString() ?? "");
   const [counter, setCounter] = React.useState(
@@ -56,6 +63,18 @@ export function CampDetail({ camp }: { camp: Camp }) {
     });
     await updateCamp(camp.id, { stock: obj });
     setStockBusy(false);
+    router.refresh();
+  }
+
+  async function remove() {
+    setRemoving(true);
+    const res = await deleteCamp(camp.id);
+    if (!res.ok) {
+      setRemoving(false);
+      setConfirmDelete(false);
+      return;
+    }
+    router.push(basePath);
     router.refresh();
   }
 
@@ -184,6 +203,27 @@ export function CampDetail({ camp }: { camp: Camp }) {
           </div>
         </CardBody>
       </Card>
+
+      {/* Danger zone — delete camp */}
+      {!confirmDelete ? (
+        <Button variant="outline" className="w-full text-emergency" onClick={() => setConfirmDelete(true)}>
+          <Trash2 size={18} /> Delete camp
+        </Button>
+      ) : (
+        <div className="rounded-xl border border-emergency/40 bg-emergency-soft p-4 text-center">
+          <p className="text-sm font-medium text-foreground">Delete this camp permanently?</p>
+          <p className="mt-1 text-sm text-muted">This removes the camp and its activity log. Can’t be undone.</p>
+          <div className="mt-3 flex gap-2">
+            <Button variant="outline" className="flex-1" onClick={() => setConfirmDelete(false)} disabled={removing}>
+              Keep it
+            </Button>
+            <Button className="flex-1 bg-emergency hover:bg-emergency" onClick={remove} disabled={removing}>
+              {removing ? <Loader2 size={18} className="animate-spin" /> : <Trash2 size={18} />}
+              {removing ? "Deleting…" : "Delete"}
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

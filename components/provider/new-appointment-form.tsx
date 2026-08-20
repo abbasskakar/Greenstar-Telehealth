@@ -112,6 +112,28 @@ export function NewAppointmentForm({
     else setDone(true);
   }
 
+  // Reset every field for a fresh entry — router.refresh() alone leaves the
+  // client state (including `done`) intact, so the button looked dead.
+  function startAnother() {
+    setEmergency(false);
+    setCampId("");
+    setMode(patients.length ? "existing" : "new");
+    setPatientId(patients[0]?.id ?? "");
+    setFullName("");
+    setAge("");
+    setGender("");
+    setContact("");
+    setAllergies("");
+    setSpecialty("General Medicine");
+    setComplaint("");
+    setBpSys("");
+    setBpDia("");
+    setV({});
+    setError(null);
+    setDone(false);
+    router.refresh();
+  }
+
   if (done) {
     return (
       <Card>
@@ -129,7 +151,7 @@ export function NewAppointmentForm({
             <Button variant="outline" onClick={() => router.push("/provider")}>
               Back home
             </Button>
-            <Button onClick={() => router.refresh()}>New appointment</Button>
+            <Button onClick={startAnother}>New appointment</Button>
           </div>
         </CardBody>
       </Card>

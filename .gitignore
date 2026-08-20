@@ -40,7 +40,10 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# large reference material (kept locally, not part of the app repo)
-docs/stitch_greenstar_telehealth_system/
-docs/*.docx
-docs/*.pdf
+# reference material (kept local, not part of the app repo)
+/docs/
+
+# local dev tooling (Claude Code / MCP) — not needed to run or deploy the app
+/.claude/
+.mcp.json
+/scratchpad/

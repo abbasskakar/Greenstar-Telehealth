@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { cnicSchema } from "@/lib/validation/cnic";
 import { encryptCnic, hashCnic } from "@/lib/crypto";
+import { logAudit } from "@/lib/audit";
 
 const schema = z.object({
   full_name: z.string().trim().min(2, "Enter the patient's name"),
@@ -87,6 +88,8 @@ export async function addPatient(input: {
       .single();
     if (pErr) return { ok: false, error: pErr.message };
 
+    // Service-role insert → log explicitly (the trigger can't see the actor).
+    await logAudit(profile.id, "create", "patients", pat.id, { full_name: d.full_name, with_login: true });
     revalidatePath("/provider/patients");
     return { ok: true, id: pat.id, login: { cnic, password } };
   }

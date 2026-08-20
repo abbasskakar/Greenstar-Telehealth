@@ -22,6 +22,7 @@ import { PrescriptionView, type Prescription } from "@/components/rx/prescriptio
 import { LabBlock, type Lab } from "@/components/rx/lab-block";
 import { VitalCards } from "@/components/patterns/vital-cards";
 import { DeleteAppointmentButton } from "@/components/patient/delete-appointment";
+import { CancelAppointmentButton } from "@/components/patient/cancel-appointment";
 import { fetchAvatars } from "@/lib/avatars";
 import type { Vitals } from "@/lib/vitals";
 
@@ -72,6 +73,10 @@ export default async function PatientAppointmentDetail({
   const vitals = (appt.vitals as unknown as Vitals[])?.[0];
   const p = appt.patient as unknown as { full_name: string; age: number | null; gender: string | null } | null;
   const canEdit = appt.status === "pending";
+  // Withdraw a still-active request; delete only a pending/cancelled one
+  // (completed/in-consult carry clinical records and must be kept).
+  const canCancel = appt.status === "pending" || appt.status === "claimed";
+  const canDelete = appt.status === "pending" || appt.status === "cancelled";
 
   const avatarMap = await fetchAvatars(supabase, [appt.assigned_doctor_id]);
   const doctorAvatar = appt.assigned_doctor_id ? avatarMap[appt.assigned_doctor_id] : null;
@@ -190,17 +195,20 @@ export default async function PatientAppointmentDetail({
         </section>
       )}
 
-      {/* Edit + Delete */}
-      <div className="space-y-2 border-t border-border pt-5">
-        {canEdit && (
-          <Link href={`/patient/appointments/${id}/edit`} className="block">
-            <Button variant="outline" className="w-full">
-              <Pencil size={18} /> Edit appointment
-            </Button>
-          </Link>
-        )}
-        <DeleteAppointmentButton id={appt.id} />
-      </div>
+      {/* Edit / Cancel / Delete — only the safe actions for this status */}
+      {(canEdit || canCancel || canDelete) && (
+        <div className="space-y-2 border-t border-border pt-5">
+          {canEdit && (
+            <Link href={`/patient/appointments/${id}/edit`} className="block">
+              <Button variant="outline" className="w-full">
+                <Pencil size={18} /> Edit appointment
+              </Button>
+            </Link>
+          )}
+          {canCancel && <CancelAppointmentButton id={appt.id} />}
+          {canDelete && !canCancel && <DeleteAppointmentButton id={appt.id} />}
+        </div>
+      )}
     </div>
   );
 }

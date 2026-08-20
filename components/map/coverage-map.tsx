@@ -87,6 +87,7 @@ export function CoverageMap({
   React.useEffect(() => {
     const g = (window as any).google;
     if (!ready || !g || !mapRef.current) return;
+    setError(null); // map is live — clear any stale render error from a prior mode
 
     overlays.current.forEach((m) => m.setMap(null));
     overlays.current = [];
@@ -96,15 +97,35 @@ export function CoverageMap({
     }
 
     if (mode === "heat") {
-      heat.current = new g.maps.visualization.HeatmapLayer({
-        data: valid.map((p) => new g.maps.LatLng(p.lat, p.lng)),
-        map: mapRef.current,
-        // Larger, brighter, and capped intensity so even a few sparse visits glow.
-        radius: 46,
-        opacity: 0.85,
-        dissipating: true,
-        maxIntensity: Math.max(2, Math.ceil(valid.length / 4)),
+      // DIY heat: stacked translucent circles per visit. Google deprecated the
+      // visualization HeatmapLayer (throws on newer Maps builds), so we render
+      // our own — no external library, never crashes, and overlapping visits
+      // naturally blend into hotter zones. Rings are sized to the spread so a
+      // handful of sparse visits still glow clearly.
+      const rings = [
+        { r: 26000, color: "#14c79a", op: 0.1 }, // cool outer halo (green)
+        { r: 15000, color: "#f5a524", op: 0.14 }, // warm mid (amber)
+        { r: 7000, color: "#f5333f", op: 0.2 }, // hot core (red)
+      ];
+      valid.forEach((p) => {
+        rings.forEach((ring) => {
+          const c = new g.maps.Circle({
+            map: mapRef.current,
+            center: { lat: p.lat, lng: p.lng },
+            radius: ring.r,
+            fillColor: ring.color,
+            fillOpacity: ring.op,
+            strokeWeight: 0,
+            clickable: false,
+          });
+          overlays.current.push(c);
+        });
       });
+      if (valid.length > 1) {
+        const b = new g.maps.LatLngBounds();
+        valid.forEach((p) => b.extend({ lat: p.lat, lng: p.lng }));
+        mapRef.current.fitBounds(b);
+      }
       return;
     }
 

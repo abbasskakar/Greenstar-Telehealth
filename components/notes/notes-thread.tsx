@@ -59,6 +59,7 @@ export function NotesThread({
   const [recording, setRecording] = React.useState(false);
   const [uploading, setUploading] = React.useState(false);
   const [elapsed, setElapsed] = React.useState(0);
+  const [sendError, setSendError] = React.useState<string | null>(null);
   const bottomRef = React.useRef<HTMLDivElement>(null);
   const recRef = React.useRef<MediaRecorder | null>(null);
   const startRef = React.useRef(0);
@@ -109,9 +110,13 @@ export function NotesThread({
     const body = text.trim();
     if (!body || sending) return;
     setSending(true);
+    setSendError(null);
     setText("");
     const res = await addTextNote(appointmentId, body);
-    if (!res.ok) setText(body);
+    if (!res.ok) {
+      setText(body);
+      setSendError(res.error ?? "Message not sent. Tap send to retry.");
+    }
     setSending(false);
   }
 
@@ -130,12 +135,17 @@ export function NotesThread({
         const blob = new Blob(chunks, { type: "audio/webm" });
         const duration = (Date.now() - startRef.current) / 1000;
         setUploading(true);
+        setSendError(null);
         const supabase = createClient();
         const path = `${appointmentId}/${crypto.randomUUID()}.webm`;
         const { error } = await supabase.storage
           .from("voice-notes")
           .upload(path, blob, { contentType: "audio/webm" });
-        if (!error) await addVoiceNote(appointmentId, path, duration);
+        if (error) setSendError("Voice note failed to send. Try again.");
+        else {
+          const res = await addVoiceNote(appointmentId, path, duration);
+          if (!res.ok) setSendError(res.error ?? "Voice note failed to send. Try again.");
+        }
         setUploading(false);
       };
       recRef.current = rec;
@@ -234,6 +244,12 @@ export function NotesThread({
         })}
         <div ref={bottomRef} />
       </div>
+
+      {sendError && (
+        <p className="shrink-0 border-t border-border bg-emergency-soft px-4 py-2 text-center text-sm font-medium text-emergency">
+          {sendError}
+        </p>
+      )}
 
       <form onSubmit={sendText} className="flex shrink-0 items-end gap-2 border-t border-border p-3">
         {recording ? (

@@ -4,6 +4,7 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth/session";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { logAudit } from "@/lib/audit";
 
 const createSchema = z.object({
   full_name: z.string().trim().min(2, "Enter a full name"),
@@ -53,6 +54,7 @@ export async function createStaffUser(input: CreateStaffInput): Promise<ActionRe
     .eq("id", data.user.id);
   if (pErr) return { ok: false, error: pErr.message };
 
+  await logAudit(profile.id, "create", "profiles", data.user.id, { role, full_name });
   revalidatePath("/admin/users");
   return { ok: true };
 }
@@ -61,13 +63,14 @@ export async function setUserActive(
   userId: string,
   isActive: boolean,
 ): Promise<ActionResult> {
-  await requireRole("admin");
+  const { profile } = await requireRole("admin");
   const admin = createAdminClient();
   const { error } = await admin
     .from("profiles")
     .update({ is_active: isActive })
     .eq("id", userId);
   if (error) return { ok: false, error: error.message };
+  await logAudit(profile.id, isActive ? "enable" : "disable", "profiles", userId);
   revalidatePath("/admin/users");
   return { ok: true };
 }
@@ -76,12 +79,13 @@ export async function resetUserPassword(
   userId: string,
   password: string,
 ): Promise<ActionResult> {
-  await requireRole("admin");
+  const { profile } = await requireRole("admin");
   if (password.length < 8)
     return { ok: false, error: "Password must be at least 8 characters" };
   const admin = createAdminClient();
   const { error } = await admin.auth.admin.updateUserById(userId, { password });
   if (error) return { ok: false, error: error.message };
+  await logAudit(profile.id, "reset_password", "profiles", userId);
   return { ok: true };
 }
 
@@ -147,6 +151,7 @@ export async function deleteStaffUser(userId: string): Promise<ActionResult> {
 
   const { error } = await admin.auth.admin.deleteUser(userId);
   if (error) return { ok: false, error: error.message };
+  await logAudit(profile.id, "delete", "profiles", userId, { role: target.role });
   revalidatePath("/admin/users");
   return { ok: true };
 }

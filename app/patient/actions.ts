@@ -70,17 +70,25 @@ export async function updateMyAppointment(
   return { ok: true };
 }
 
-/** Permanently delete the patient's own appointment. */
+/** Permanently delete the patient's own appointment.
+ *  Only pending or cancelled requests can be removed — a claimed/in-consult/
+ *  completed appointment carries clinical records (prescriptions, labs, notes,
+ *  vitals) that must be preserved, so deletion is blocked there. */
 export async function deleteMyAppointment(id: string): Promise<Result> {
   const { profile } = await requireRole("public");
   const supabase = await createClient();
   const { data: appt } = await supabase
     .from("appointments")
-    .select("created_by")
+    .select("status, created_by")
     .eq("id", id)
     .single();
   if (!appt || appt.created_by !== profile.id)
     return { ok: false, error: "Appointment not found." };
+  if (!["pending", "cancelled"].includes(appt.status))
+    return {
+      ok: false,
+      error: "This appointment has clinical records and can’t be deleted. Cancel it instead.",
+    };
 
   const { error } = await supabase.from("appointments").delete().eq("id", id);
   if (error) return { ok: false, error: error.message };

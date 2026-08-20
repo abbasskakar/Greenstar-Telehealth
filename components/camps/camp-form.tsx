@@ -10,7 +10,7 @@ import { Select } from "@/components/ui/select";
 import { CAMP_TYPES } from "@/lib/constants/camps";
 import { createCamp } from "@/app/camps/actions";
 
-export function CampForm() {
+export function CampForm({ basePath = "/program/camps" }: { basePath?: string }) {
   const router = useRouter();
   const [type, setType] = React.useState<string>("health_camp");
   const [title, setTitle] = React.useState("");
@@ -49,7 +49,7 @@ export function CampForm() {
     });
     setLoading(false);
     if (!res.ok) setError(res.error ?? "Could not save.");
-    else router.push(`/program/camps/${res.id}`);
+    else router.push(`${basePath}/${res.id}`);
   }
 
   return (

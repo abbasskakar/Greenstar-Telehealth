@@ -6,8 +6,8 @@ import { BellRing, Power, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { setDuty } from "@/lib/actions/duty";
 
-/** When a provider/doctor is Off Duty: a one-per-session popup on landing and a
- *  persistent banner, so they don't forget to go On Duty and miss cases. */
+/** When a provider/doctor is Off Duty, shows a persistent banner with a one-tap
+ *  "Go On Duty" button, so they don't forget to go On Duty and miss cases. */
 export function DutyReminder({ initial }: { initial: "on_duty" | "off_duty" }) {
   const router = useRouter();
   const [duty, setDutyState] = React.useState(initial);

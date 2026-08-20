@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Inbox } from "lucide-react";
+import { Inbox, AlertTriangle } from "lucide-react";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardBody } from "@/components/ui/card";
@@ -42,7 +42,7 @@ export default async function DoctorHome({
 
   if (spec) query = query.eq("specialty", spec);
 
-  const { data } = await query
+  const { data, error: queryError } = await query
     .order("type", { ascending: true })
     .order("created_at", { ascending: false })
     .limit(50);
@@ -58,7 +58,7 @@ export default async function DoctorHome({
           <h1 className="text-2xl font-bold text-foreground">Appointments</h1>
           <div className="mt-1.5 flex items-center gap-1.5 text-sm text-muted">
             <span className="h-2 w-2 rounded-full bg-success" />
-            Live queue{profile.specialty ? ` · ${profile.specialty}` : ""}
+            Live queue{spec ? ` · ${spec}` : " · all specialties"}
           </div>
         </div>
         <DutyToggle initial={profile.duty} />
@@ -93,7 +93,19 @@ export default async function DoctorHome({
         <SpecialtyFilter filter={filter} spec={spec} />
       </div>
 
-      {appts.length ? (
+      {queryError ? (
+        <Card>
+          <CardBody className="flex flex-col items-center gap-3 py-14 text-center">
+            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-emergency-soft text-emergency">
+              <AlertTriangle size={22} />
+            </span>
+            <p className="text-[15px] font-medium text-foreground">Couldn’t load the queue</p>
+            <p className="max-w-xs text-sm text-muted">
+              There was a problem reaching the server. Check your connection and refresh.
+            </p>
+          </CardBody>
+        </Card>
+      ) : appts.length ? (
         <div className="space-y-3">
           {appts.map((a) => (
             <AppointmentCard key={a.id} appt={a} basePath="/doctor/appointments" view="staff" showVitals />

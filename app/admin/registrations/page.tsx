@@ -2,7 +2,7 @@ import { UserRound, IdCard, CalendarClock } from "lucide-react";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardBody } from "@/components/ui/card";
-import { StatusPill } from "@/components/ui/status-pill";
+import { RegistrationToggle } from "@/components/admin/registration-toggle";
 
 export default async function PublicRegistrations() {
   await requireRole("admin");
@@ -81,9 +81,7 @@ export default async function PublicRegistrations() {
                       </span>
                     </div>
                   </div>
-                  <StatusPill tone={u.is_active ? "success" : "neutral"}>
-                    {u.is_active ? "Active" : "Disabled"}
-                  </StatusPill>
+                  <RegistrationToggle id={u.id} active={u.is_active} />
                 </li>
               ))}
             </ul>

@@ -25,6 +25,20 @@ export async function startCall(appointmentId: string): Promise<StartResult> {
   const patientName =
     (appt.patient as unknown as { full_name: string } | null)?.full_name ?? null;
 
+  // If a call for this appointment is already live, rejoin it instead of
+  // spawning a second ringing session (and a duplicate provider notification).
+  const { data: existing } = await supabase
+    .from("call_sessions")
+    .select("id, room_name")
+    .eq("appointment_id", appointmentId)
+    .in("status", ["ringing", "active"])
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (existing) {
+    return { ok: true, sessionId: existing.id, roomName: existing.room_name };
+  }
+
   await supabase
     .from("appointments")
     .update({ status: "in_consult" })

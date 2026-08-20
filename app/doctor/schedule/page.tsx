@@ -1,4 +1,4 @@
-import { Activity, CheckCircle2, Timer, CalendarClock } from "lucide-react";
+import { Activity, CheckCircle2, Timer, CalendarClock, AlertTriangle } from "lucide-react";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardBody } from "@/components/ui/card";
@@ -22,7 +22,7 @@ export default async function DoctorSchedule() {
   const { profile } = await requireRole("doctor");
   const supabase = await createClient();
 
-  const { data } = await supabase
+  const { data, error: queryError } = await supabase
     .from("appointments")
     .select(
       `id, type, status, specialty, chief_complaint, patient_id, created_at,
@@ -86,6 +86,19 @@ export default async function DoctorSchedule() {
           </Card>
         ))}
       </div>
+
+      {queryError && (
+        <Card>
+          <CardBody className="flex items-center gap-3 py-4">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emergency-soft text-emergency">
+              <AlertTriangle size={18} />
+            </span>
+            <p className="text-sm text-muted">
+              Couldn’t load your cases — there was a problem reaching the server. Refresh to try again.
+            </p>
+          </CardBody>
+        </Card>
+      )}
 
       <section>
         <h2 className="mb-3 flex items-center gap-2 text-lg font-bold text-foreground">

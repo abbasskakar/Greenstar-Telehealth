@@ -4,6 +4,7 @@ import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { cnicSchema } from "@/lib/validation/cnic";
 import { encryptCnic, hashCnic } from "@/lib/crypto";
+import { logAudit } from "@/lib/audit";
 
 const schema = z.object({
   cnic: cnicSchema,
@@ -55,6 +56,9 @@ export async function signUpPublic(input: SignUpInput): Promise<Result> {
     created_by: userId,
   });
   if (pErr) return { ok: false, error: pErr.message };
+
+  // Service-role insert → log explicitly, attributed to the new account.
+  await logAudit(userId, "create", "profiles", userId, { self_signup: true, full_name: d.full_name });
 
   return { ok: true, email };
 }

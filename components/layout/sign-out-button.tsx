@@ -7,14 +7,31 @@ import { cn } from "@/lib/utils";
 export function SignOutButton({
   className,
   label = "Sign out",
+  iconOnly = false,
 }: {
   className?: string;
   label?: string;
+  iconOnly?: boolean;
 }) {
   async function signOut() {
     const supabase = createClient();
     await supabase.auth.signOut();
     window.location.href = "/login";
+  }
+  if (iconOnly) {
+    return (
+      <button
+        onClick={signOut}
+        aria-label={label}
+        title={label}
+        className={cn(
+          "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted-2 transition-colors hover:bg-emergency-soft hover:text-emergency",
+          className,
+        )}
+      >
+        <LogOut size={18} />
+      </button>
+    );
   }
   return (
     <button

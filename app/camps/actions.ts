@@ -5,7 +5,7 @@ import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 
 type Result = { ok: boolean; error?: string; id?: string };
-const ROLES = ["admin", "program_manager", "provider"] as const;
+const ROLES = ["admin", "program_manager"] as const;
 
 export async function createCamp(input: {
   type: string;
@@ -42,6 +42,7 @@ export async function createCamp(input: {
     .single();
   if (error) return { ok: false, error: error.message };
   revalidatePath("/program/camps");
+  revalidatePath("/admin/camps");
   return { ok: true, id: data.id };
 }
 
@@ -61,5 +62,17 @@ export async function updateCamp(
   if (error) return { ok: false, error: error.message };
   revalidatePath(`/program/camps/${id}`);
   revalidatePath("/program/camps");
+  revalidatePath(`/admin/camps/${id}`);
+  revalidatePath("/admin/camps");
+  return { ok: true };
+}
+
+export async function deleteCamp(id: string): Promise<Result> {
+  await requireRole([...ROLES]);
+  const supabase = await createClient();
+  const { error } = await supabase.from("camps").delete().eq("id", id);
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/program/camps");
+  revalidatePath("/admin/camps");
   return { ok: true };
 }
