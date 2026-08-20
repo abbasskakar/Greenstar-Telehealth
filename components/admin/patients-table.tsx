@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { Search, UserRound } from "lucide-react";
+import Link from "next/link";
+import { Search, UserRound, ChevronRight } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { StatusPill } from "@/components/ui/status-pill";
 
@@ -54,25 +55,28 @@ export function PatientsTable({ patients }: { patients: AdminPatientRow[] }) {
             </thead>
             <tbody>
               {shown.map((p) => (
-                <tr key={p.id} className="border-b border-border transition-colors last:border-0 hover:bg-surface-2/50">
+                <tr key={p.id} className="group border-b border-border transition-colors last:border-0 hover:bg-surface-2/50">
                   <td className="px-5 py-3.5">
-                    <div className="flex items-center gap-2.5">
+                    <Link href={`/admin/patients/${p.id}`} className="flex items-center gap-2.5">
                       <Avatar name={p.full_name} size={34} />
                       <div className="min-w-0">
-                        <p className="truncate font-medium text-foreground">{p.full_name}</p>
+                        <p className="truncate font-medium text-foreground group-hover:text-primary">{p.full_name}</p>
                         <p className="text-xs text-muted-2">
                           {[p.age != null ? `${p.age} yrs` : null, p.gender].filter(Boolean).join(" · ") || "—"}
                         </p>
                       </div>
-                    </div>
+                    </Link>
                   </td>
                   <td className="px-5 py-3.5 font-mono text-xs text-muted">{p.mrn || "—"}</td>
                   <td className="px-5 py-3.5 text-muted">{p.contact || "—"}</td>
                   <td className="px-5 py-3.5 text-muted">{new Date(p.created_at).toLocaleDateString()}</td>
                   <td className="px-5 py-3.5">
-                    <StatusPill tone={p.source === "self" ? "info" : "success"} dot={false}>
-                      {p.source === "self" ? "Self-registered" : "Provider"}
-                    </StatusPill>
+                    <Link href={`/admin/patients/${p.id}`} className="flex items-center justify-between gap-2">
+                      <StatusPill tone={p.source === "self" ? "info" : "success"} dot={false}>
+                        {p.source === "self" ? "Self-registered" : "Provider"}
+                      </StatusPill>
+                      <ChevronRight size={16} className="text-muted-2 opacity-0 transition-opacity group-hover:opacity-100" />
+                    </Link>
                   </td>
                 </tr>
               ))}

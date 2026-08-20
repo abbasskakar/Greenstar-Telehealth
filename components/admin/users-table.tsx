@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Power, PowerOff, KeyRound } from "lucide-react";
 import { StatusPill } from "@/components/ui/status-pill";
@@ -58,9 +59,9 @@ export function UsersTable({ users, currentUserId }: { users: UserRow[]; current
           {users.map((u) => (
             <tr key={u.id} className="border-b border-border transition-colors last:border-0 hover:bg-surface-2/50">
               <td className="px-5 py-3.5">
-                <span className="font-medium text-foreground">
+                <Link href={`/admin/users/${u.id}`} className="font-medium text-foreground hover:text-primary hover:underline">
                   {u.full_name || "—"}
-                </span>
+                </Link>
                 {u.id === currentUserId && (
                   <span className="ml-2 text-xs text-muted-2">(you)</span>
                 )}
