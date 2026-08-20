@@ -84,3 +84,25 @@ export async function resetUserPassword(
   if (error) return { ok: false, error: error.message };
   return { ok: true };
 }
+
+/** Permanently delete a user account (cascades their profile). */
+export async function deleteStaffUser(userId: string): Promise<ActionResult> {
+  const { profile } = await requireRole("admin");
+  if (userId === profile.id)
+    return { ok: false, error: "You can't delete your own account." };
+
+  const admin = createAdminClient();
+  const { data: target } = await admin
+    .from("profiles")
+    .select("role")
+    .eq("id", userId)
+    .maybeSingle();
+  if (!target) return { ok: false, error: "User not found." };
+  if (target.role === "admin")
+    return { ok: false, error: "Admin accounts can't be deleted here." };
+
+  const { error } = await admin.auth.admin.deleteUser(userId);
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/admin/users");
+  return { ok: true };
+}

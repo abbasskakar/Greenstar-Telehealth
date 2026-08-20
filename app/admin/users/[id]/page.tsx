@@ -6,6 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { Card, CardBody } from "@/components/ui/card";
 import { Avatar } from "@/components/ui/avatar";
 import { StatusPill } from "@/components/ui/status-pill";
+import { DeleteUserButton } from "@/components/admin/delete-user";
 import { ROLE_LABEL, type Role } from "@/lib/auth/roles";
 
 const statusTone: Record<string, "warning" | "info" | "success" | "neutral"> = {
@@ -31,7 +32,7 @@ export default async function AdminUserDetail({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  await requireRole("admin");
+  const { profile: me } = await requireRole("admin");
   const admin = createAdminClient();
 
   const { data: user } = await admin
@@ -121,6 +122,13 @@ export default async function AdminUserDetail({
           <p className="text-sm text-muted">No appointments.</p>
         )}
       </section>
+
+      {/* Delete — not for admins or yourself */}
+      {user.role !== "admin" && user.id !== me.id && (
+        <div className="border-t border-border pt-5">
+          <DeleteUserButton userId={user.id} name={user.full_name || "this user"} />
+        </div>
+      )}
     </div>
   );
 }
