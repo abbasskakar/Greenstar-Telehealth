@@ -99,8 +99,11 @@ export function CoverageMap({
       heat.current = new g.maps.visualization.HeatmapLayer({
         data: valid.map((p) => new g.maps.LatLng(p.lat, p.lng)),
         map: mapRef.current,
-        radius: 32,
-        opacity: 0.75,
+        // Larger, brighter, and capped intensity so even a few sparse visits glow.
+        radius: 46,
+        opacity: 0.85,
+        dissipating: true,
+        maxIntensity: Math.max(2, Math.ceil(valid.length / 4)),
       });
       return;
     }
