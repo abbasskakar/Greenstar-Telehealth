@@ -92,11 +92,11 @@ export function UserDetailModal({
       onClick={onClose}
     >
       <div
-        className="max-h-[85vh] w-full max-w-md overflow-hidden rounded-2xl border border-border bg-surface shadow-float"
+        className="flex max-h-[85vh] w-full max-w-md flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-float"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
-        <div className="relative">
+        {/* Header with overlapping avatar (non-scrolling) */}
+        <div className="relative shrink-0">
           <div className="gs-brand-gradient h-16" />
           <button
             onClick={onClose}
@@ -105,9 +105,14 @@ export function UserDetailModal({
           >
             <X size={18} />
           </button>
+          {user && (
+            <div className="absolute -bottom-8 left-5">
+              <Avatar url={user.avatar_url} name={user.full_name} size={72} className="border-4 border-surface" />
+            </div>
+          )}
         </div>
 
-        <div className="max-h-[calc(85vh-4rem)] overflow-y-auto p-5">
+        <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-5 pt-10">
           {loading ? (
             <div className="flex items-center justify-center py-16 text-muted">
               <Loader2 size={24} className="animate-spin" />
@@ -116,10 +121,7 @@ export function UserDetailModal({
             <p className="py-10 text-center text-sm text-emergency">{error ?? "Not found."}</p>
           ) : (
             <>
-              <div className="-mt-12">
-                <Avatar url={user.avatar_url} name={user.full_name} size={72} className="border-4 border-surface" />
-              </div>
-              <p className="mt-2 text-lg font-bold text-foreground">{user.full_name || "Unnamed"}</p>
+              <p className="text-lg font-bold text-foreground">{user.full_name || "Unnamed"}</p>
               <div className="mt-1.5 flex flex-wrap items-center gap-2">
                 <StatusPill tone="primary" dot={false}>{ROLE_LABEL[user.role as Role]}</StatusPill>
                 {user.specialty && <StatusPill tone="neutral" dot={false}>{user.specialty}</StatusPill>}

@@ -1,10 +1,10 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
 import { Search, UserRound, ChevronRight } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { StatusPill } from "@/components/ui/status-pill";
+import { PatientDetailModal } from "@/components/admin/patient-detail-modal";
 
 export type AdminPatientRow = {
   id: string;
@@ -19,6 +19,7 @@ export type AdminPatientRow = {
 
 export function PatientsTable({ patients }: { patients: AdminPatientRow[] }) {
   const [q, setQ] = React.useState("");
+  const [openId, setOpenId] = React.useState<string | null>(null);
   const query = q.trim().toLowerCase();
   const shown = query
     ? patients.filter(
@@ -55,9 +56,13 @@ export function PatientsTable({ patients }: { patients: AdminPatientRow[] }) {
             </thead>
             <tbody>
               {shown.map((p) => (
-                <tr key={p.id} className="group border-b border-border transition-colors last:border-0 hover:bg-surface-2/50">
+                <tr
+                  key={p.id}
+                  onClick={() => setOpenId(p.id)}
+                  className="group cursor-pointer border-b border-border transition-colors last:border-0 hover:bg-surface-2/50"
+                >
                   <td className="px-5 py-3.5">
-                    <Link href={`/admin/patients/${p.id}`} className="flex items-center gap-2.5">
+                    <div className="flex items-center gap-2.5">
                       <Avatar name={p.full_name} size={34} />
                       <div className="min-w-0">
                         <p className="truncate font-medium text-foreground group-hover:text-primary">{p.full_name}</p>
@@ -65,18 +70,18 @@ export function PatientsTable({ patients }: { patients: AdminPatientRow[] }) {
                           {[p.age != null ? `${p.age} yrs` : null, p.gender].filter(Boolean).join(" · ") || "—"}
                         </p>
                       </div>
-                    </Link>
+                    </div>
                   </td>
                   <td className="px-5 py-3.5 font-mono text-xs text-muted">{p.mrn || "—"}</td>
                   <td className="px-5 py-3.5 text-muted">{p.contact || "—"}</td>
                   <td className="px-5 py-3.5 text-muted">{new Date(p.created_at).toLocaleDateString()}</td>
                   <td className="px-5 py-3.5">
-                    <Link href={`/admin/patients/${p.id}`} className="flex items-center justify-between gap-2">
+                    <div className="flex items-center justify-between gap-2">
                       <StatusPill tone={p.source === "self" ? "info" : "success"} dot={false}>
                         {p.source === "self" ? "Self-registered" : "Provider"}
                       </StatusPill>
                       <ChevronRight size={16} className="text-muted-2 opacity-0 transition-opacity group-hover:opacity-100" />
-                    </Link>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -91,6 +96,8 @@ export function PatientsTable({ patients }: { patients: AdminPatientRow[] }) {
           <p className="text-[15px] font-medium text-foreground">No patients found</p>
         </div>
       )}
+
+      {openId && <PatientDetailModal patientId={openId} onClose={() => setOpenId(null)} />}
     </div>
   );
 }
