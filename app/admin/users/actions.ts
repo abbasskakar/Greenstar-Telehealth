@@ -110,10 +110,15 @@ export type UserAppt = {
 };
 
 /** Full detail for the admin user popup. */
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export async function getUserDetail(
   userId: string,
 ): Promise<{ ok: boolean; user?: UserDetail; appointments?: UserAppt[] }> {
   await requireRole("admin");
+  // Guard: userId is interpolated into a PostgREST .or() filter below, so it
+  // must be a plain UUID — never free-form text.
+  if (!UUID_RE.test(userId)) return { ok: false };
   const admin = createAdminClient();
   const { data: user } = await admin
     .from("profiles")

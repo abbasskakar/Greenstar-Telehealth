@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Send, Mic, X, Play, Loader2 } from "lucide-react";
+import { Send, Mic, X, Play, Pause, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { addTextNote, addVoiceNote } from "@/app/notes/actions";
 import { Avatar } from "@/components/ui/avatar";
@@ -318,6 +318,14 @@ export function NotesThread({
   );
 }
 
+// Only one voice note plays at a time across the whole thread.
+let currentlyPlaying: HTMLAudioElement | null = null;
+
+function fmtTime(s: number) {
+  if (!isFinite(s) || s < 0) s = 0;
+  return `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
+}
+
 function VoicePlayer({
   path,
   duration,
@@ -328,36 +336,94 @@ function VoicePlayer({
   mine: boolean;
 }) {
   const [loading, setLoading] = React.useState(false);
+  const [playing, setPlaying] = React.useState(false);
+  const [current, setCurrent] = React.useState(0);
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
 
-  async function play() {
-    if (!path) return;
+  // Prefer the real audio duration once known; fall back to the recorded value
+  // (MediaRecorder webm often reports Infinity until fully buffered).
+  const total = current > 0 && audioRef.current && isFinite(audioRef.current.duration)
+    ? audioRef.current.duration
+    : duration ?? 0;
+  const pct = total > 0 ? Math.min(100, (current / total) * 100) : 0;
+
+  React.useEffect(() => {
+    // Pause and release the audio when this bubble unmounts.
+    return () => {
+      const a = audioRef.current;
+      if (a) {
+        a.pause();
+        if (currentlyPlaying === a) currentlyPlaying = null;
+      }
+    };
+  }, []);
+
+  async function ensureAudio(): Promise<HTMLAudioElement | null> {
+    if (audioRef.current) return audioRef.current;
+    if (!path) return null;
     setLoading(true);
     const supabase = createClient();
     const { data } = await supabase.storage.from("voice-notes").createSignedUrl(path, 3600);
     setLoading(false);
-    if (data?.signedUrl) {
-      audioRef.current = new Audio(data.signedUrl);
-      audioRef.current.play();
+    if (!data?.signedUrl) return null;
+
+    const audio = new Audio(data.signedUrl);
+    audio.addEventListener("timeupdate", () => setCurrent(audio.currentTime));
+    audio.addEventListener("play", () => setPlaying(true));
+    audio.addEventListener("pause", () => setPlaying(false));
+    audio.addEventListener("ended", () => {
+      setPlaying(false);
+      setCurrent(0);
+      audio.currentTime = 0;
+      if (currentlyPlaying === audio) currentlyPlaying = null;
+    });
+    audioRef.current = audio;
+    return audio;
+  }
+
+  async function toggle() {
+    const audio = await ensureAudio();
+    if (!audio) return;
+    if (audio.paused) {
+      // Stop any other voice note first, then play this one.
+      if (currentlyPlaying && currentlyPlaying !== audio) currentlyPlaying.pause();
+      currentlyPlaying = audio;
+      await audio.play().catch(() => {});
+    } else {
+      audio.pause();
     }
   }
 
   return (
-    <button onClick={play} className="flex items-center gap-2.5">
+    <button onClick={toggle} className="flex w-full items-center gap-2.5">
       <span
         className={cn(
-          "flex h-8 w-8 items-center justify-center rounded-full",
+          "flex h-8 w-8 shrink-0 items-center justify-center rounded-full",
           mine ? "bg-white/20" : "bg-primary/15 text-primary",
         )}
       >
-        {loading ? <Loader2 size={16} className="animate-spin" /> : <Play size={16} />}
+        {loading ? (
+          <Loader2 size={16} className="animate-spin" />
+        ) : playing ? (
+          <Pause size={16} />
+        ) : (
+          <Play size={16} />
+        )}
       </span>
-      <span className="font-medium">Voice note</span>
-      {duration != null && (
-        <span className={cn("text-sm", mine ? "text-white/70" : "text-muted-2")}>
-          {Math.floor(duration / 60)}:{String(Math.round(duration % 60)).padStart(2, "0")}
-        </span>
-      )}
+      <span
+        className={cn(
+          "h-1.5 flex-1 overflow-hidden rounded-full",
+          mine ? "bg-white/25" : "bg-primary/15",
+        )}
+      >
+        <span
+          className={cn("block h-full rounded-full", mine ? "bg-white" : "bg-primary")}
+          style={{ width: `${pct}%` }}
+        />
+      </span>
+      <span className={cn("shrink-0 text-sm tabular-nums", mine ? "text-white/70" : "text-muted-2")}>
+        {fmtTime(playing || current > 0 ? total - current : total)}
+      </span>
     </button>
   );
 }
