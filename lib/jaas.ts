@@ -46,27 +46,35 @@ export function makeJaasToken(opts: {
   if (!appId || !keyId || !privateKey) return null;
 
   const now = Math.floor(Date.now() / 1000);
+  // Structure mirrors the official JaaS sample token exactly: room "*" (any
+  // room) and boolean flags — 8x8 rejects string flags / mismatched rooms.
   return jwt.sign(
     {
       aud: "jitsi",
       iss: "chat",
       sub: appId,
-      room: opts.room,
+      room: "*",
+      iat: now,
       nbf: now - 10,
       exp: now + 3 * 60 * 60, // 3 hours
       context: {
+        features: {
+          livestreaming: false,
+          "outbound-call": false,
+          "sip-outbound-call": false,
+          transcription: false,
+          "list-visitors": false,
+          recording: false,
+          flip: false,
+          "file-upload": false,
+        },
         user: {
-          id: opts.userId,
+          "hidden-from-recorder": false,
+          moderator: opts.moderator,
           name: opts.name,
+          id: opts.userId,
           avatar: "",
           email: "",
-          moderator: opts.moderator ? "true" : "false",
-        },
-        features: {
-          livestreaming: "false",
-          recording: "false",
-          transcription: "false",
-          "outbound-call": "false",
         },
       },
     },
