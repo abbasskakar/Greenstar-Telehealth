@@ -2,12 +2,9 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Check, Video, CheckCircle2 } from "lucide-react";
+import { Video, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  claimAppointment,
-  updateAppointmentStatus,
-} from "@/app/doctor/appointments/actions";
+import { updateAppointmentStatus } from "@/app/doctor/appointments/actions";
 import { startCall } from "@/app/call/actions";
 
 type Status = "pending" | "claimed" | "in_consult" | "completed" | "cancelled";
@@ -15,12 +12,10 @@ type Status = "pending" | "claimed" | "in_consult" | "completed" | "cancelled";
 export function AppointmentActions({
   id,
   status,
-  emergency,
   hasConsent,
 }: {
   id: string;
   status: Status;
-  emergency: boolean;
   hasConsent: boolean;
 }) {
   const router = useRouter();
@@ -45,15 +40,9 @@ export function AppointmentActions({
       )}
 
       {status === "pending" && (
-        <Button
-          size="lg"
-          variant={emergency ? "emergency" : "primary"}
-          className="w-full"
-          disabled={busy}
-          onClick={() => run(() => claimAppointment(id))}
-        >
-          <Check size={18} /> Accept case
-        </Button>
+        <div className="flex items-center justify-center gap-2 rounded-lg bg-surface-2 px-4 py-3 text-sm font-medium text-muted">
+          Waiting for the admin to assign this case.
+        </div>
       )}
 
       {(status === "claimed" || status === "in_consult") && (

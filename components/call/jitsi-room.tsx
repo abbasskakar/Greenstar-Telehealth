@@ -16,16 +16,23 @@ declare global {
   }
 }
 
+// Which Jitsi server to use. Defaults to the public meet.jit.si (which forces a
+// moderator login); set NEXT_PUBLIC_JITSI_DOMAIN to your own self-hosted Jitsi
+// domain (e.g. "video.greenstar.org") for direct, no-login connections.
+const JITSI_DOMAIN = process.env.NEXT_PUBLIC_JITSI_DOMAIN || "meet.jit.si";
+
 export function JitsiRoom({
   sessionId,
   roomName,
   displayName,
   returnHref,
+  jwt = null,
 }: {
   sessionId: string;
   roomName: string;
   displayName: string;
   returnHref: string;
+  jwt?: string | null;
 }) {
   const ref = React.useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -35,11 +42,12 @@ export function JitsiRoom({
 
     function init() {
       if (!window.JitsiMeetExternalAPI || !ref.current) return;
-      api = new window.JitsiMeetExternalAPI("meet.jit.si", {
+      api = new window.JitsiMeetExternalAPI(JITSI_DOMAIN, {
         roomName,
         parentNode: ref.current,
         width: "100%",
         height: "100%",
+        ...(jwt ? { jwt } : {}),
         userInfo: { displayName },
         configOverwrite: {
           prejoinPageEnabled: false,
@@ -72,7 +80,7 @@ export function JitsiRoom({
       init();
     } else {
       const s = document.createElement("script");
-      s.src = "https://meet.jit.si/external_api.js";
+      s.src = `https://${JITSI_DOMAIN}/external_api.js`;
       s.async = true;
       s.onload = init;
       document.body.appendChild(s);
@@ -85,7 +93,7 @@ export function JitsiRoom({
         /* noop */
       }
     };
-  }, [roomName, displayName, sessionId, returnHref, router]);
+  }, [roomName, displayName, sessionId, returnHref, router, jwt]);
 
   return <div ref={ref} className="h-dvh w-full bg-black" />;
 }

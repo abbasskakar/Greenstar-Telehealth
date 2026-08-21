@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus, Users } from "lucide-react";
+import { Plus, Users, HeartPulse, ChevronRight, AlertTriangle } from "lucide-react";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardBody } from "@/components/ui/card";
@@ -9,24 +9,42 @@ import { DutyReminder } from "@/components/duty/duty-reminder";
 import { AppointmentCard, type AppointmentCardData } from "@/components/patterns/appointment-card";
 
 type Row = AppointmentCardData & { patient_id: string };
+type NurseVisit = {
+  id: string;
+  type: "emergency" | "regular";
+  specialty: string | null;
+  chief_complaint: string | null;
+  patient: { full_name: string } | null;
+  vitals: { id: string }[] | null;
+};
 
 export default async function ProviderHome() {
   const { profile } = await requireRole("provider");
   const firstName = (profile.full_name || "Provider").split(" ")[0];
 
   const supabase = await createClient();
-  const { data } = await supabase
-    .from("appointments")
-    .select(
-      `id, type, status, specialty, chief_complaint, patient_id, created_at, assigned_doctor_name,
-       patient:patients ( full_name, age, gender ),
-       vitals ( bp_systolic, bp_diastolic, heart_rate, temperature_f, spo2 )`,
-    )
-    .eq("created_by", profile.id)
-    .order("created_at", { ascending: false })
-    .limit(8);
+  const [{ data }, { data: assigned }] = await Promise.all([
+    supabase
+      .from("appointments")
+      .select(
+        `id, type, status, specialty, chief_complaint, patient_id, created_at, assigned_doctor_name,
+         patient:patients ( full_name, age, gender ),
+         vitals ( bp_systolic, bp_diastolic, heart_rate, temperature_f, spo2 )`,
+      )
+      .eq("created_by", profile.id)
+      .order("created_at", { ascending: false })
+      .limit(8),
+    supabase
+      .from("appointments")
+      .select(`id, type, specialty, chief_complaint, patient:patients ( full_name ), vitals ( id )`)
+      .eq("assigned_nurse_id", profile.id)
+      .neq("status", "cancelled")
+      .order("created_at", { ascending: true }),
+  ]);
 
   const appts = (data ?? []) as unknown as Row[];
+  // Assigned vitals visits that still need vitals recorded.
+  const visits = ((assigned ?? []) as unknown as NurseVisit[]).filter((v) => !(v.vitals && v.vitals.length));
 
   return (
     <div className="space-y-6">
@@ -43,6 +61,37 @@ export default async function ProviderHome() {
       </div>
 
       <DutyReminder initial={profile.duty} />
+
+      {visits.length > 0 && (
+        <div>
+          <h2 className="mb-3 flex items-center gap-2 text-lg font-bold text-foreground">
+            <HeartPulse size={18} className="text-primary" /> Vitals to record ({visits.length})
+          </h2>
+          <div className="space-y-3">
+            {visits.map((v) => (
+              <Link key={v.id} href={`/provider/visit/${v.id}`} className="block">
+                <Card interactive className="overflow-hidden">
+                  {v.type === "emergency" && (
+                    <div className="flex items-center gap-1.5 bg-emergency-soft px-4 py-2 text-xs font-bold uppercase tracking-wide text-emergency">
+                      <AlertTriangle size={13} /> Emergency
+                    </div>
+                  )}
+                  <CardBody className="flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="truncate font-bold text-foreground">{v.patient?.full_name ?? "Patient"}</p>
+                      <p className="truncate text-sm text-primary">{v.specialty ?? "General"}</p>
+                      {v.chief_complaint && <p className="truncate text-sm text-muted">{v.chief_complaint}</p>}
+                    </div>
+                    <span className="inline-flex shrink-0 items-center gap-1 rounded-xl bg-primary px-3.5 py-2.5 text-sm font-semibold text-primary-contrast shadow-brand">
+                      Record <ChevronRight size={15} />
+                    </span>
+                  </CardBody>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-3">
         <Link href="/provider/new">

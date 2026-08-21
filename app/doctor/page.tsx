@@ -8,39 +8,36 @@ import { RealtimeRefresh } from "@/components/notifications/realtime-refresh";
 import { DutyToggle } from "@/components/duty/duty-toggle";
 import { DutyHeartbeat } from "@/components/duty/duty-heartbeat";
 import { DutyReminder } from "@/components/duty/duty-reminder";
-import { SpecialtyFilter } from "@/components/doctor/specialty-filter";
 import { cn } from "@/lib/utils";
 
 const FILTERS = [
   { key: "all", label: "All" },
   { key: "emergency", label: "Emergency" },
-  { key: "pending", label: "Pending" },
   { key: "completed", label: "Completed" },
 ];
 
 export default async function DoctorHome({
   searchParams,
 }: {
-  searchParams: Promise<{ filter?: string; spec?: string }>;
+  searchParams: Promise<{ filter?: string }>;
 }) {
   const { profile } = await requireRole("doctor");
-  const { filter = "all", spec = "" } = await searchParams;
+  const { filter = "all" } = await searchParams;
   const supabase = await createClient();
 
+  // Doctors see only the cases the admin has assigned to them.
   let query = supabase
     .from("appointments")
     .select(
       `id, type, status, specialty, chief_complaint, patient_id, created_at, assigned_doctor_name,
        patient:patients ( full_name, age, gender ),
        vitals ( bp_systolic, bp_diastolic, heart_rate, temperature_f, spo2 )`,
-    );
+    )
+    .eq("assigned_doctor_id", profile.id);
 
   if (filter === "emergency") query = query.eq("type", "emergency");
-  else if (filter === "pending") query = query.eq("status", "pending");
   else if (filter === "completed") query = query.eq("status", "completed");
   else query = query.neq("status", "cancelled");
-
-  if (spec) query = query.eq("specialty", spec);
 
   const { data, error: queryError } = await query
     .order("type", { ascending: true })
@@ -55,10 +52,10 @@ export default async function DoctorHome({
       <DutyHeartbeat />
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Appointments</h1>
+          <h1 className="text-2xl font-bold text-foreground">My cases</h1>
           <div className="mt-1.5 flex items-center gap-1.5 text-sm text-muted">
             <span className="h-2 w-2 rounded-full bg-success" />
-            Live queue{spec ? ` · ${spec}` : " · all specialties"}
+            Assigned to you by the admin
           </div>
         </div>
         <DutyToggle initial={profile.duty} />
@@ -72,7 +69,6 @@ export default async function DoctorHome({
             const active = f.key === filter;
             const params = new URLSearchParams();
             if (f.key !== "all") params.set("filter", f.key);
-            if (spec) params.set("spec", spec);
             const qs = params.toString();
             return (
               <Link
@@ -90,7 +86,6 @@ export default async function DoctorHome({
             );
           })}
         </div>
-        <SpecialtyFilter filter={filter} spec={spec} />
       </div>
 
       {queryError ? (
@@ -118,10 +113,10 @@ export default async function DoctorHome({
               <Inbox size={22} />
             </span>
             <p className="text-[15px] font-medium text-foreground">
-              No appointments here
+              No cases yet
             </p>
             <p className="max-w-xs text-sm text-muted">
-              New cases from field providers will appear in this queue.
+              Cases the admin assigns to you will appear here.
             </p>
           </CardBody>
         </Card>

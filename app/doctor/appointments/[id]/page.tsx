@@ -156,7 +156,6 @@ export default async function DoctorAppointmentDetail({
         <AppointmentActions
           id={appt.id}
           status={appt.status}
-          emergency={emergency}
           hasConsent={!!consent}
         />
       </div>

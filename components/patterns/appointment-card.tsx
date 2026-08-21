@@ -29,7 +29,7 @@ export type AppointmentCardData = {
 
 const statusMeta = {
   pending: { tone: "warning", label: "Pending" },
-  claimed: { tone: "info", label: "Accepted" },
+  claimed: { tone: "info", label: "Assigned" },
   in_consult: { tone: "info", label: "In consult" },
   completed: { tone: "success", label: "Completed" },
   cancelled: { tone: "neutral", label: "Cancelled" },
